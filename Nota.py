@@ -7,10 +7,10 @@ import sys
 # MariaDB Connection
 try:
     conn = mariadb.connect(
-        user="root",
-        password="root",
-        host="127.0.0.1",
-        port=3306,
+        user="[user]",
+        password="[password]",
+        host="[ip]",
+        port=[porta],
         database="PACER"
     )
 except mariadb.Error as e:
