@@ -2,48 +2,41 @@
 import mariadb
 from flask import Flask, render_template, request, jsonify
 from flask_cors import CORS
+from flask_sqlalchemy import SQLAlchemy
 import sys
 
-# MariaDB Connection
-try:
-    conn = mariadb.connect(
-        user="[user]",
-        password="[password]",
-        host="[ip]",
-        port=[porta],
-        database="PACER"
-    )
-except mariadb.Error as e:
-    print(f"Error connecting to platform: {e}")
-    sys.exit(1)
-cur = conn.cursor()
-
-nota = Flask(__name__)
+app = Flask(__name__)
 CORS(app)
+app.config["SQLALCHEMY_DATABASE_URI"] = "mysql+pymysql://<username>:<password>@127.0.0.1:3306/PACER"
 
-@app.route('/<string:id>/nota', methods=['POST', 'GET'])
-def inserir_notas(id):
+db = SQLAlchemy(app)
+
+class Nota(db.Model):
+    not_id = db.Column(db.Integer, primary_key=True)
+    not_avaliacao = db.Column(db.BigInteger)
+    not_criterio = db.Column(db.String(32), nullable=False)
+    not_valor = db.Column(db.BigInteger, nullable=False)
+
+@app.route('/nota', methods=['POST', 'GET'])
+def inserir_notas():
     
     # POST de dados ao banco:
-    
+    notas = request.get_json()
+
+    for nota in notas:
+        ava = nota['avaliacao']
+        cri = nota['criterio']
+        n = nota['nota']
+        try:
+            insercao = Nota(not_avaliacao = ava, not_criterio = cri, not_valor = n)
+            db.session.add(insercao)
+            db.session.commit()
+        except Exception as e:
+            print("Não foi possivel adicionar")
+            print(e)
     
     # GET dos dados pro banco:
     
-
-
-def inserir(auto, colega):
-    #Inserindo Auto-avaliação
-    cur.execute("INSERT INTO NOTA (not_criterio, not_valor) VALUES ('Proatividade', ?);", (auto[0],))
-    cur.execute("INSERT INTO NOTA (not_criterio, not_valor) VALUES ('Autonomia', ?);", (auto[1],))
-    cur.execute("INSERT INTO NOTA (not_criterio, not_valor) VALUES ('Colaboração', ?);", (auto[2],))
-    cur.execute("INSERT INTO NOTA (not_criterio, not_valor) VALUES ('Entrega de Resultado', ?);", (auto[3],))
-
-    #Inserindo Avaliação do Colega
-    cur.execute("INSERT INTO NOTA (not_criterio, not_valor) VALUES ('Proatividade', ?);", (colega[0],))
-    cur.execute("INSERT INTO NOTA (not_criterio, not_valor) VALUES ('Autonomia', ?);", (colega[1],))
-    cur.execute("INSERT INTO NOTA (not_criterio, not_valor) VALUES ('Colaboração', ?);", (colega[2],))
-    cur.execute("INSERT INTO NOTA (not_criterio, not_valor) VALUES ('Entrega de Resultado', ?);", (colega[3],))
-    return 
 
 
 def avaliacao():
@@ -91,10 +84,6 @@ def menu():
     return auto, colega
 
 if __name__ == '__main__':
-    auto = []
-    colega = []
-    auto, colega = menu()
-    nota.debug = True
-    nota.run()
-    if auto and colega:
-        inserir(auto, colega)
+
+    app.debug = True
+    app.run()
