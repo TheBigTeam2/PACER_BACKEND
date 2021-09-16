@@ -1,14 +1,18 @@
 # Modules
 import mariadb
+import json
 from dataclasses import dataclass
 from flask import Flask, render_template, request, jsonify
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import select, create_engine
 import sys
 
 app = Flask(__name__)
 CORS(app)
-app.config["SQLALCHEMY_DATABASE_URI"] = "mysql+pymysql://root:root@127.0.0.1:3306/PACER"
+path = "mysql+pymysql://root:root@127.0.0.1:3306/PACER"
+
+app.config["SQLALCHEMY_DATABASE_URI"] = path
 
 db = SQLAlchemy(app)
 
@@ -90,6 +94,23 @@ class Aluno(db.Model):
     alu_ra = db.Column(db.BigInteger)
     alu_usuario = db.Column(db.BigInteger)
 
+def buscar_alunos(proj):
+    
+    equ = []
+    alu = []
+    a = []
+    p = select(Projeto_Equipe.pre_equipe).where(Projeto_Equipe.pre_projeto == proj)
+    for row in db.session.execute(p):
+        equ.append(row[0])
+
+    for e in equ:
+        alu = []
+        q = select(Aluno_Equipe.ale_aluno).where(Aluno_Equipe.ale_equipe == e)
+        for row in db.session.execute(q):
+            alu.append(row[0])
+        a.append(alu)
+    return a
+
 @app.route('/nota', methods=['POST', 'GET'])
 def inserir_notas():
 
@@ -115,37 +136,54 @@ def inserir_notas():
         avaliacoes = Avaliacao.query.all()
         return jsonify(avaliacoes)
 
-@app.route('/avaliacao', methods=['POST', 'GET'])
+@app.route('/professor/avaliacao', methods=['POST', 'GET'])
 def avaliacao():
 
     # POST da avaliacao:
     if request.method == 'POST':
-        
         avaliacoes = request.get_json()
+        
+        sprint = avaliacoes['sprint']
+        inicio = avaliacoes['inicio']
+        termino = avaliacoes['termino']
+        projeto = avaliacoes['projeto']
 
-        for ava in avaliacoes:
-            sprint = ava['sprint']
-            inicio = ava['inicio']
-            termino = ava['termino']
-            avaliado = ava['avaliado']
-            avaliador = ava['avaliador']
-            projeto = ava['projeto']
-            try:
-                insercao = Avaliacao(ava_sprint = sprint, ava_inicio = inicio, ava_termino = termino, ava_avaliado = avaliado, ava_avaliador = avaliador, ava_projeto = projeto)
-                db.session.add(insercao)
-                db.session.commit()
-            except Exception as e:
-                print("Não foi possivel adicionar")
-                print(e)
+        alunos = []
+        alunos = buscar_alunos(projeto)
+            
+        for aluno in alunos:
+            i = 0
+            print(aluno)
+            while i < len(aluno):
+                try:
+                    #Avalia a si próprio:
+                    avaliador = aluno[i]
+                    insercao_proprio = Avaliacao(ava_sprint = sprint, ava_inicio = inicio, ava_termino = termino, ava_avaliado = avaliador, ava_avaliador = avaliador, ava_projeto = projeto)
+                        
+                    #Avalia um colega de equipe:
+                    avaliado = aluno[(i + 1) % len(aluno)]
+                    insercao_colega1 = Avaliacao(ava_sprint = sprint, ava_inicio = inicio, ava_termino = termino, ava_avaliado = avaliado, ava_avaliador = avaliador, ava_projeto = projeto)
+                        
+                    #Avalia outro colega de equipe:
+                    avaliado = aluno[(i + 2) % len(aluno)]
+                    insercao_colega2 = Avaliacao(ava_sprint = sprint, ava_inicio = inicio, ava_termino = termino, ava_avaliado = avaliado, ava_avaliador = avaliador, ava_projeto = projeto)
+
+                    db.session.add(insercao_proprio)
+                    db.session.add(insercao_colega1)
+                    db.session.add(insercao_colega2)
+                    db.session.commit()
+                    i += 1
+                except Exception as e:
+                        print("Não foi possivel adicionar")
+                        print(e)
             
     # GET dos membros da equipe:
-    if request.method == 'GET':
+    #if request.method == 'GET':
         
     
 
 
 if __name__ == '__main__':
 
-    #inserir_notas()
     app.debug = True
     app.run()
