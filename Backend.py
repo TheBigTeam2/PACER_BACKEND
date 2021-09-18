@@ -3,7 +3,7 @@ import mariadb
 import json
 from dataclasses import dataclass
 import dataclasses
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, make_response
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import select, create_engine
@@ -12,7 +12,7 @@ import sys
 
 app = Flask(__name__)
 CORS(app)
-path = "mysql+pymysql://root:root@127.0.0.1:3306/PACER"
+path = "mysql+pymysql://root:1234@127.0.0.1:3376/PACER"
 
 app.config["SQLALCHEMY_DATABASE_URI"] = path
 
@@ -32,6 +32,9 @@ class Nota(db.Model):
     not_avaliacao = db.Column(db.BigInteger)
     not_criterio = db.Column(db.String(32), nullable=False)
     not_valor = db.Column(db.BigInteger, nullable=False)
+
+    def as_dict(self):
+       return {c.name: str(getattr(self, c.name)) for c in self.__table__.columns}
 
 @dataclass
 class Avaliacao(db.Model):
@@ -216,6 +219,60 @@ def avaliacao(id):
             p.pop('pro_equipe')
             projetos.append(p)
         return jsonify(projetos)
+
+@app.post('/avaliacao/abrir')
+def open_avalitation():
+    response = make_response()
+    response.status_code = 201
+
+    try:
+        body = request.get_json()
+
+        avaliacao = Avaliacao(
+            ava_sprint = body.get('ava_sprint'),
+            ava_inicio = body.get('ava_inicio'),
+            ava_termino = body.get('ava_termino'),
+            ava_avaliado = body.get('ava_avaliado'),
+            ava_avaliador = body.get('ava_avaliador'),
+            ava_projeto = body.get('ava_projeto')
+        )
+
+        db.session.add(avaliacao)
+        db.session.commit()
+
+        response.status_code = 201
+
+        return jsonify({"content":avaliacao.as_dict()})
+
+    except Exception as e:
+        response.status_code = 500
+        raise e
+
+@app.post('/avaliacao/fechar')
+def close_avaliation():
+
+    response = make_response()
+
+    try:
+        body = request.get_json()
+
+        nota = Nota(
+            not_avaliacao = body.get('not_avaliacao'),
+            not_criterio = body.get('not_criterio'),
+            not_valor = body.get('not_valor')
+        )
+
+        db.session.add(nota)
+        db.session.commit()
+
+        response.status_code = 201
+
+        return jsonify({"content":nota.as_dict()})
+
+    except Exception as e:
+        response.status_code = 500
+        raise e
+
 
 if __name__ == '__main__':
     
