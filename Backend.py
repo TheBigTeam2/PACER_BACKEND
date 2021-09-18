@@ -13,16 +13,9 @@ import sys
 
 app = Flask(__name__)
 CORS(app)
-path = "mysql+pymysql://root:1234@127.0.0.1:3376/PACER"
+path = "mysql+pymysql://[username]:[password]@[ip]:[port]/PACER"
 
 app.config["SQLALCHEMY_DATABASE_URI"] = path
-
-'''
-#Abrir Sessão:
-engine = create_engine(path)
-Session = sessionmaker(engine)
-session = Session()
-'''
 
 db = SQLAlchemy(app)
 
@@ -116,6 +109,33 @@ class Aluno(db.Model):
     def as_dict(self):
        return {c.name: str(getattr(self, c.name)) for c in self.__table__.columns}
 
+@dataclass
+class Disciplina(db.Model):
+    dis_id: int
+    dis_semestre: str
+    dis_professor: str
+    dis_nome: str
+    
+    dis_id = db.Column(db.BigInteger, primary_key=True)
+    dis_semestre = db.Column(db.String(32), nullable=False)
+    dis_professor = db.Column(db.BigInteger)
+    dis_nome = db.Column(db.String(64), nullable=False)
+
+    def as_dict(self):
+       return {c.name: str(getattr(self, c.name)) for c in self.__table__.columns}
+    
+@dataclass
+class Disciplina_Projeto(db.Model):
+    dip_disciplina: int
+    dip_projeto: int
+
+    dip_disciplina = db.Column(db.BigInteger, primary_key=True)
+    dip_projeto = db.Column(db.BigInteger, primary_key=True)
+
+    def as_dict(self):
+       return {c.name: str(getattr(self, c.name)) for c in self.__table__.columns}
+
+#Realizar Busca de Alunos que fazem parte do projeto:
 def buscar_alunos(proj):
     equ = []
     alu = []
@@ -132,15 +152,23 @@ def buscar_alunos(proj):
         a.append(alu)
     return a
 
-'''
-def buscar_ava():
-    proj = Projeto.query.all()
-    usuario = '7'
-    for p in proj:
-        j = p.as_dict()
-        j.pop('pro_equipe')
-        print(j)
-'''
+#Buscar Projetos que o Professor faz parte:
+def buscar_projetos(professor):
+    projetos = []
+    disciplina = []
+    disciplinas = select(Disciplina.dis_id).where(Disciplina.dis_professor == professor)
+    
+    for row in db.session.execute(disciplinas):
+        disciplina.append(row[0])
+
+    for discip in disciplina:
+        dis = Disciplina_Projeto.query.filter(Disciplina_Projeto.dip_disciplina == discip).all()
+        for d in dis:
+            proj = d.as_dict()
+            proj.pop('dip_disciplina')
+            projetos.append(proj)
+    return projetos
+        
         
 @app.route('/aluno/<string:id>/nota', methods=['POST', 'GET'])
 def inserir_notas(id):
@@ -187,7 +215,6 @@ def avaliacao(id):
             
         for aluno in alunos:
             i = 0
-            print(aluno)
             while i < len(aluno):
                 try:
                     #Avalia a si próprio:
@@ -214,11 +241,7 @@ def avaliacao(id):
     # GET dos membros da equipe:
     if request.method == 'GET':
         projetos = []
-        proj = Projeto.query.all()
-        for pr in proj:
-            p = pr.as_dict()
-            p.pop('pro_equipe')
-            projetos.append(p)
+        projetos = buscar_projetos(id)
         return jsonify(projetos)
 
 @app.post('/avaliacao/abrir')
@@ -325,6 +348,6 @@ def note_per_team():
 
 
 if __name__ == '__main__':
-    
+
     app.debug = True
     app.run()
