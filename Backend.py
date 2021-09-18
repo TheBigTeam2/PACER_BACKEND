@@ -3,11 +3,12 @@ import mariadb
 import json
 from dataclasses import dataclass
 import dataclasses
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, make_response
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import select, create_engine
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.sql import func
 import sys
 
 app = Flask(__name__)
@@ -23,8 +24,11 @@ db = SQLAlchemy(app)
 class Nota(db.Model):
     not_id = db.Column(db.BigInteger, primary_key=True)
     not_avaliacao = db.Column(db.BigInteger)
-    not_criterio = db.Column(db.String(32), nullable=False)
+    nor_criterio = db.Column(db.String(32), nullable=False)
     not_valor = db.Column(db.BigInteger, nullable=False)
+
+    def as_dict(self):
+       return {c.name: str(getattr(self, c.name)) for c in self.__table__.columns}
 
 @dataclass
 class Avaliacao(db.Model):
@@ -85,7 +89,7 @@ class Equipe(db.Model):
     equ_disciplina = db.Column(db.BigInteger)
 
 @dataclass
-class Aluno_Equipe(db.Model):
+class Aluno_equipe(db.Model):
     ale_aluno: int
     ale_equipe: int
     
@@ -142,7 +146,7 @@ def buscar_alunos(proj):
 
     for e in equ:
         alu = []
-        q = select(Aluno_Equipe.ale_aluno).where(Aluno_Equipe.ale_equipe == e)
+        q = select(Aluno_equipe.ale_aluno).where(Aluno_equipe.ale_equipe == e)
         for row in db.session.execute(q):
             alu.append(row[0])
         a.append(alu)
@@ -239,6 +243,109 @@ def avaliacao(id):
         projetos = []
         projetos = buscar_projetos(id)
         return jsonify(projetos)
+
+@app.post('/avaliacao/abrir')
+def open_avalitation():
+    response = make_response()
+    response.status_code = 201
+
+    try:
+        body = request.get_json()
+
+        avaliacao = Avaliacao(
+            ava_sprint = body.get('ava_sprint'),
+            ava_inicio = body.get('ava_inicio'),
+            ava_termino = body.get('ava_termino'),
+            ava_avaliado = body.get('ava_avaliado'),
+            ava_avaliador = body.get('ava_avaliador'),
+            ava_projeto = body.get('ava_projeto')
+        )
+
+        db.session.add(avaliacao)
+        db.session.commit()
+
+        response.status_code = 201
+
+        return jsonify({"content":avaliacao.as_dict()})
+
+    except Exception as e:
+        response.status_code = 500
+        raise e
+
+@app.post('/avaliacao/fechar')
+def close_avaliation():
+
+    response = make_response()
+
+    try:
+        body = request.get_json()
+
+        nota = Nota(
+            not_avaliacao = body.get('not_avaliacao'),
+            nor_criterio = body.get('not_criterio'),
+            not_valor = body.get('not_valor')
+        )
+
+        db.session.add(nota)
+        db.session.commit()
+
+        response.status_code = 201
+
+        return jsonify({"content":nota.as_dict()})
+
+    except Exception as e:
+        response.status_code = 500
+        raise e
+
+@app.get('/avaliacao/nota/')
+def note_per_evaluated() :
+
+    id_evalueted = request.args.get('avaliado')
+    id_project = request.args.get('projeto')
+
+    avaliacao = select(Avaliacao).where(Avaliacao.ava_avaliado == id_evalueted,
+                                        Avaliacao.ava_projeto == id_project)
+    
+    avaliacoes = db.session.execute(avaliacao)
+
+    ids_avaliacoes = [row[0].ava_id for row in avaliacoes]
+    nota = select(Nota).where(Nota.not_avaliacao.in_(ids_avaliacoes))
+
+    notas = db.session.execute(nota)
+    notas_json = [row[0].as_dict() for row in notas]
+
+    
+    return jsonify(notas_json)
+
+@app.get('/avaliacao/nota/grupo/')
+def note_per_team():
+    
+    id_equipe = request.args.get('equipe')
+
+    equipe_stmt = select(Equipe).where(Equipe.equ_id == id_equipe)
+    equipe = db.session.execute(equipe_stmt)
+
+    for row in equipe:
+        equipe = row[0]
+        break
+
+    alunos_na_equipe_stmt = select(Aluno_equipe).where(Aluno_equipe.ale_equipe == equipe.equ_id)
+    alunos_na_equipe = db.session.execute(alunos_na_equipe_stmt)
+
+    alunos_na_equipe_id = [row[0].ale_aluno for row in alunos_na_equipe]
+
+    avaliaoces_stmt = select(Avaliacao).where(Avaliacao.ava_avaliado.in_(alunos_na_equipe_id))
+    avaliacoes = db.session.execute(avaliaoces_stmt)
+
+    avaliacoes_id = [row[0].ava_id for row in avaliacoes]
+
+    notas_stmt = select(Nota).where(Nota.not_avaliacao.in_(avaliacoes_id))
+    notas = db.session.execute(notas_stmt)
+
+    notas_json = [row[0].as_dict() for row in notas]
+
+    return jsonify(notas_json)    
+
 
 if __name__ == '__main__':
 
