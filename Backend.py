@@ -172,8 +172,8 @@ def buscar_projetos(professor):
             notas = []
             for nota in notasBruto:
                 notas.append({
-                        "criterio": nota[0],
-                        "valor": nota[1]
+                        "criterio": nota[1],
+                        "valor": nota[0]
                     })
             avaliacoes.append({
                     "id": av[0],
