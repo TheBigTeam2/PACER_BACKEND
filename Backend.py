@@ -166,21 +166,28 @@ def buscar_projetos(professor):
             proj.append(d[0])
     for p in proj:
         ava = Avaliacao.query.filter(Avaliacao.ava_projeto == p).with_entities(Avaliacao.ava_id, Avaliacao.ava_sprint, Avaliacao.ava_avaliador, Avaliacao.ava_avaliado).all()
-        
         avaliacoes = []
         for av in ava:
+            notasBruto = Nota.query.filter(Nota.not_avaliacao == av[0]).with_entities(Nota.not_valor, Nota.not_criterio).all()
+            notas = []
+            for nota in notasBruto:
+                notas.append({
+                        "criterio": nota[0],
+                        "valor": nota[1]
+                    })
             avaliacoes.append({
                     "id": av[0],
                     "sprint": av[1],
                     "avaliador": av[3],
                     "avaliado": av[2],
                     "equipe": 'null',
-                    "notas": 'null'
+                    "notas": notas
                 })
         projetos.append({
             "id": p,
             "avaliacoes": avaliacoes
         })
+    print(projetos)
     return projetos
         
 @app.route('/aluno/<string:id>/nota', methods=['POST', 'GET'])
@@ -367,6 +374,6 @@ def note_per_team():
 
 
 if __name__ == '__main__':
-    #buscar_projetos(13)
+
     app.debug = True
     app.run()
