@@ -165,13 +165,15 @@ def buscar_projetos(professor):
         for d in dis:
             proj.append(d[0])
     for p in proj:
-        ava = Avaliacao.query.filter(Avaliacao.ava_projeto == p).with_entities(Avaliacao.ava_id, Avaliacao.ava_avaliador, Avaliacao.ava_avaliado).all()
+        ava = Avaliacao.query.filter(Avaliacao.ava_projeto == p).with_entities(Avaliacao.ava_id, Avaliacao.ava_sprint, Avaliacao.ava_avaliador, Avaliacao.ava_avaliado).all()
+        
         avaliacoes = []
         for av in ava:
             avaliacoes.append({
                     "id": av[0],
-                    "avaliador": av[2],
-                    "avaliado": av[1],
+                    "sprint": av[1],
+                    "avaliador": av[3],
+                    "avaliado": av[2],
                     "equipe": 'null',
                     "notas": 'null'
                 })
