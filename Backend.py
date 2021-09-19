@@ -24,7 +24,7 @@ db = SQLAlchemy(app)
 class Nota(db.Model):
     not_id = db.Column(db.BigInteger, primary_key=True)
     not_avaliacao = db.Column(db.BigInteger)
-    nor_criterio = db.Column(db.String(32), nullable=False)
+    not_criterio = db.Column(db.String(32), nullable=False)
     not_valor = db.Column(db.BigInteger, nullable=False)
 
     def as_dict(self):
@@ -71,7 +71,7 @@ class Projeto(db.Model):
        return {c.name: str(getattr(self, c.name)) for c in self.__table__.columns}
 
 @dataclass
-class Projeto_Equipe(db.Model):
+class Projeto_equipe(db.Model):
     pre_projeto: int
     pre_equipe: int
     
@@ -125,7 +125,7 @@ class Disciplina(db.Model):
        return {c.name: str(getattr(self, c.name)) for c in self.__table__.columns}
     
 @dataclass
-class Disciplina_Projeto(db.Model):
+class Disciplina_projeto(db.Model):
     dip_disciplina: int
     dip_projeto: int
 
@@ -140,7 +140,7 @@ def buscar_alunos(proj):
     equ = []
     alu = []
     a = []
-    p = select(Projeto_Equipe.pre_equipe).where(Projeto_Equipe.pre_projeto == proj)
+    p = select(Projeto_equipe.pre_equipe).where(Projeto_equipe.pre_projeto == proj)
     for row in db.session.execute(p):
         equ.append(row[0])
 
@@ -162,7 +162,7 @@ def buscar_projetos(professor):
         disciplina.append(row[0])
 
     for discip in disciplina:
-        dis = Disciplina_Projeto.query.filter(Disciplina_Projeto.dip_disciplina == discip).all()
+        dis = Disciplina_projeto.query.filter(Disciplina_projeto.dip_disciplina == discip).all()
         for d in dis:
             proj = d.as_dict()
             proj.pop('dip_disciplina')
