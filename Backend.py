@@ -155,20 +155,30 @@ def buscar_alunos(proj):
 #Buscar Projetos que o Professor faz parte:
 def buscar_projetos(professor):
     projetos = []
+    proj = []
     disciplina = []
     disciplinas = select(Disciplina.dis_id).where(Disciplina.dis_professor == professor)
-    
     for row in db.session.execute(disciplinas):
         disciplina.append(row[0])
-
     for discip in disciplina:
-        dis = Disciplina_projeto.query.filter(Disciplina_projeto.dip_disciplina == discip).all()
+        dis = Disciplina_projeto.query.filter(Disciplina_projeto.dip_disciplina == discip).with_entities(Disciplina_projeto.dip_projeto).all()
         for d in dis:
-            proj = d.as_dict()
-            proj.pop('dip_disciplina')
-            projetos.append(proj)
+            proj.append(d[0])
+    for p in proj:
+        ava = Avaliacao.query.filter(Avaliacao.ava_projeto == p).with_entities(Avaliacao.ava_id, Avaliacao.ava_avaliador, Avaliacao.ava_avaliado).all()
+        projetos.append({
+            "id": p,
+            "avaliacoes": [
+                {
+                    "id": ava[0][0],
+                    "avaliador": ava[0][2],
+                    "avaliado": ava[0][1],
+                    "equipe": 'null',
+                    "notas": 'null'
+                }
+            ]
+        })
     return projetos
-        
         
 @app.route('/aluno/<string:id>/nota', methods=['POST', 'GET'])
 def inserir_notas(id):
@@ -354,6 +364,6 @@ def note_per_team():
 
 
 if __name__ == '__main__':
-
+    #buscar_projetos(13)
     app.debug = True
     app.run()
