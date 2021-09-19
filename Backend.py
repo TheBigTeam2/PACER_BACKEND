@@ -199,6 +199,7 @@ def avaliacao(id):
 
     # POST da avaliacao:
     if request.method == 'POST':
+        resp = []
         avaliacoes = request.get_json()
         
         sprint = avaliacoes['sprint']
@@ -233,6 +234,11 @@ def avaliacao(id):
                 except Exception as e:
                         print("Não foi possivel adicionar")
                         print(e)
+                        return (e)
+        ava = Avaliacao.query.filter(Avaliacao.ava_sprint == sprint, Avaliacao.ava_inicio == inicio, Avaliacao.ava_termino == termino, Avaliacao.ava_projeto == projeto).all()
+        for a in ava:
+            resp.append(a.as_dict())
+        return jsonify(resp), 200
             
     # GET dos membros da equipe:
     if request.method == 'GET':
