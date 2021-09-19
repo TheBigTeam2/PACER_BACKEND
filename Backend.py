@@ -195,7 +195,7 @@ def inserir_notas(id):
 
     # POST das notas:
     if request.method == 'POST':
-        
+        resp = []
         notas = request.get_json()
 
         for nota in notas:
@@ -209,6 +209,11 @@ def inserir_notas(id):
             except Exception as e:
                 print("Não foi possivel adicionar")
                 print(e)
+        notas_resp = Nota.query.filter(Nota.not_avaliacao == ava).all()
+        for r in notas_resp:
+            resp.append(r.as_dict())
+        return jsonify(resp), 200
+
             
     # GET das avaliações:
     if request.method == 'GET':
