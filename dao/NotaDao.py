@@ -16,7 +16,7 @@ class NotaDao(BaseDao):
 
         return is_saved
 
-    def save_notas_in_mass(self, notas_collection: list(Nota)):
+    def save_notas_in_mass(self, notas_collection: list):
 
         db_insertions = [self.save(nota) for nota in notas_collection]
 

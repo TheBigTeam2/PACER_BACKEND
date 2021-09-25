@@ -2,12 +2,10 @@ from flask.blueprints import Blueprint
 from dao.NotaDao import NotaDao
 from flask import request, jsonify, make_response
 
-
-
 nota_dao = NotaDao()
-app = Blueprint(__name__)
+nota = Blueprint("nota",__name__)
 
-app.post('/nota')
+nota.post('/nota')
 def insert():
 
     notas = request.get_json()
