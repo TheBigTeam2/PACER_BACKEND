@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, make_response
 from dao.AvaliacaoDao import AvaliacaoDao
 
 avaliacao_dao = AvaliacaoDao()
@@ -12,5 +12,20 @@ def get_avaliacao():
         id_avaliador = request.args['avaliador']
         return jsonify(avaliacao_dao.get_all_avaliacoes_by_avaliador(id_avaliador))
 
+@avaliacao.post('/avaliacao')
+def post_avaliacao():
 
+    avaliacao = request.get_json()
+
+    try:
+        insertion_result = avaliacao_dao.save_avaliacao_in_mass(avaliacao)
+
+        if insertion_result:
+
+            response =  make_response(jsonify({"inserted_content":avaliacao}),201)
+            return response
+
+    except Exception as error:
+        raise error
+    
 
