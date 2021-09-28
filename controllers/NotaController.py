@@ -19,5 +19,4 @@ def insert():
             return response
 
     except Exception as error:
-        response =  make_response(jsonify({"error":error}),500)
-        return response
+        raise error
