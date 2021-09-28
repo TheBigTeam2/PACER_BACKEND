@@ -9,5 +9,5 @@ class Projeto(Base):
     pro_id = Column(Integer,primary_key=True)
     pro_equipe = Column(Integer)
 
-    equipes = relationship("Equipe",secondary=projeto_equipe,back_populates="projetos")
-    disciplinas = relationship("Disciplina",secondary=disciplina_projeto,back_populates="projetos")
+    #equipes = relationship("Equipe",secondary=projeto_equipe,back_populates="projetos",lazy=True)
+    #disciplinas = relationship("Disciplina",secondary=disciplina_projeto,back_populates="projetos",lazy=True)

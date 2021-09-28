@@ -5,7 +5,7 @@ from flask import request, jsonify, make_response
 nota_dao = NotaDao()
 nota = Blueprint("nota",__name__)
 
-nota.post('/nota')
+@nota.post('/nota')
 def insert():
 
     notas = request.get_json()
