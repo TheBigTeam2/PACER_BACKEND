@@ -13,7 +13,7 @@ import sys
 
 app = Flask(__name__)
 CORS(app)
-path = "mysql+pymysql://[username]:[password]@[ip]:[port]/PACER"
+path = "mysql+pymysql://root:senha123@127.0.0.1:8082/PACER"
 
 app.config["SQLALCHEMY_DATABASE_URI"] = path
 
