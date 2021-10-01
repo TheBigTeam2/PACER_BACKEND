@@ -1,6 +1,8 @@
-from flask import Blueprint, request, jsonify, make_response
 from dao.AvaliacaoDao import AvaliacaoDao
+from flask import Blueprint, request, jsonify, make_response
+from services.AvaliacaoService import AvaliacaoService
 
+avaliacao_service = AvaliacaoService()
 avaliacao_dao = AvaliacaoDao()
 avaliacao = Blueprint("avaliacao",__name__)
 
@@ -15,15 +17,13 @@ def get_avaliacao():
 @avaliacao.post('/avaliacao')
 def post_avaliacao():
 
-    avaliacao = request.get_json()
+    avaliacoes = request.get_json()
 
     try:
-        insertion_result = avaliacao_dao.save_avaliacao_in_mass(avaliacao)
 
-        if insertion_result:
-
-            response =  make_response(jsonify({"inserted_content":avaliacao}),201)
-            return response
+        avaliacao_service.create_avaliacoes(avaliacoes)
+        response =  make_response(jsonify({"status":"Created avaliacoes"}),201)
+        return response
 
     except Exception as error:
         raise error

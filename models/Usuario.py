@@ -6,5 +6,3 @@ class Usuario(Base):
 
     usu_id = Column(Integer,primary_key=True)
     usu_nome = Column(String)    
-    usu_email = Column(String)
-    usu_senha = Column(String)

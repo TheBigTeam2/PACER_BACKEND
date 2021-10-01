@@ -24,7 +24,6 @@ class BaseDao(ABC):
             self.session.commit()
         else:
             self.session.rollback()
-
         return is_saved
 
     def save_entity_in_mass(self, collection: list) -> bool:

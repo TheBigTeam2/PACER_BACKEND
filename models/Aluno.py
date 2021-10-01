@@ -7,6 +7,7 @@ class Aluno(Usuario):
 
     __mapper_args__ = {'polymorphic_identity': 'aluno'}
     __tablename__ = "aluno"
+    alu_id = Column(Integer,primary_key=True)
     alu_usuario = Column(None,ForeignKey("usuario.usu_id"),primary_key=True)
     alu_ra = Column(Integer)
 
