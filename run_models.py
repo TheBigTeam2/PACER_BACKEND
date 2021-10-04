@@ -5,6 +5,7 @@ from models.Equipe import Equipe
 from models.Projeto import Projeto
 from models.Avaliacao import Avaliacao
 from models.Nota import Nota
+from models.Usuario import Usuario
 
 dis = Disciplina()
 alu = Aluno()
@@ -13,3 +14,4 @@ equ = Equipe()
 pro = Projeto()
 ava = Avaliacao()
 nota = Nota()
+usu = Usuario()
