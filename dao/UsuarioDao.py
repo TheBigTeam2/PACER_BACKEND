@@ -13,6 +13,7 @@ class UsuarioDao(BaseDao):
             usu_cpf = json["cpf"],
             usu_nome = json["nome"],
             usu_auth = json["auth"]
+
         )
 
     def save_usuario(self,object):
