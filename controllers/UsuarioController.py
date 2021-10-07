@@ -9,7 +9,6 @@ usuario = Blueprint("usuario",__name__)
 def insert():
 
     usuario = request.get_json()
-    #print(usuario)
 
     try:
         insertion_result = usuario_dao.save_usuario(usuario)

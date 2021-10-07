@@ -9,7 +9,11 @@ class UsuarioDao(BaseDao):
     def create_usuario(self,json: dict) -> Usuario:
 
         return Usuario(
-            usu_nome = json["nome"]
+            usu_rg = json["rg"],
+            usu_cpf = json["cpf"],
+            usu_nome = json["nome"],
+            usu_auth = json["auth"]
+
         )
 
     def save_usuario(self,object):
