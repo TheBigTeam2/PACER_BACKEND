@@ -4,7 +4,6 @@ from dataclasses import dataclass
 
 class Usuario(Base):
     usu_id: int
-
     usu_rg: str
     usu_cpf: str
     usu_nome: str
