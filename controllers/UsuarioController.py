@@ -5,6 +5,11 @@ from flask import request, jsonify, make_response
 usuario_dao = UsuarioDao()
 usuario = Blueprint("usuario",__name__)
 
+@usuario.get('/alunos')
+def get_alunos():
+
+    return jsonify(usuario_dao.get_all_usuarios_by_aluno())
+
 @usuario.post('/usuario')
 def insert():
 
