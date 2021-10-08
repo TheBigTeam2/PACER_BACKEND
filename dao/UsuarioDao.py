@@ -39,3 +39,11 @@ class UsuarioDao(BaseDao):
         alunos = [self.convert_entity_to_dict(aluno) for aluno in alunos]
 
         return alunos
+    
+    def get_all_usuarios_by_professor(self) -> list:
+
+        professores = self.session.query(Usuario).filter(Usuario.usu_auth == "Professor").all()
+
+        professores = [self.convert_entity_to_dict(professor) for professor in professores]
+
+        return professores
