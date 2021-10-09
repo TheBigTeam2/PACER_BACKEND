@@ -10,6 +10,11 @@ def get_alunos():
 
     return jsonify(usuario_dao.get_all_usuarios_by_aluno())
 
+@usuario.get('/professores')
+def get_professores():
+
+    return jsonify(usuario_dao.get_all_usuarios_by_professor())
+
 @usuario.post('/usuario')
 def insert():
 
