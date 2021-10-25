@@ -35,3 +35,22 @@ def insert():
     except Exception as error:
         raise error
 
+@equipe.put('/equipe')
+def update():
+
+    if request.args['id']:
+        id_equipe = request.args['id']
+        equipe_json = request.get_json()
+        equipe = equipe_dao.get_equipe_by_id(id_equipe)
+
+        if equipe:
+            equipe_dao.update_equipe(id_equipe,equipe_json)
+            response = make_response(jsonify({"updated_register":id_equipe}),200)
+
+        else:
+            response = make_response(jsonify({"error":"register not found"}),500)
+   
+    else:
+        response = make_response(jsonify({"error":"id argument empty"}),500)
+
+    return response

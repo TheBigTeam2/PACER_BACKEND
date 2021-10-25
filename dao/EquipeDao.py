@@ -46,3 +46,16 @@ class EquipeDao(BaseDao):
         equipes = [self.convert_entity_to_dict(equipe) for equipe in equipes]
 
         return equipes        
+
+    def get_equipe_by_id(self, id_equipe: int) -> Equipe:
+
+        equipe = self.session.query(Equipe).get(id_equipe)
+
+        return equipe
+
+    def update_equipe(self,equipe_to_be_updated: int, equipe_info_json: dict) -> None:
+
+        equipe = self.create_equipe(equipe_info_json)
+        equipe.equ_id = equipe_to_be_updated
+
+        self.update_entity_with_commit(equipe)
