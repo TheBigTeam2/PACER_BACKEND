@@ -29,35 +29,40 @@ def insert():
 @criterio.put('/criterios')
 def update():
 
-    criterio = request.get_json()
-
     if request.args['id']:
-        criterio_id = request.args['id']
-        try:
-            update_result = criterio_dao.update_criterio(criterio_id)
+        id_criterio = request.args['id']
+        criterio_json = request.get_json()
+        criterio = criterio_dao.get_criterio_by_id(id_criterio)
 
-            if update_result:
+        if criterio:
+            criterio_dao.update_criterio(id_criterio,criterio_json)
+            response = make_response(jsonify({"updated_register":id_criterio}),200)
 
-                response =  make_response(jsonify({"inserted_content":criterio}),201)
-                return response
+        else:
+            response = make_response(jsonify({"error":"register not found"}),500)
+   
+    else:
+        response = make_response(jsonify({"error":"id argument empty"}),500)
 
-        except Exception as error:
-            raise error
+    return response
 
 @criterio.delete('/criterios')
 def delete():
 
-    criterio = request.get_json()
-
     if request.args['id']:
-        criterio_id = request.args['id']
-        try:
-            delete_result = criterio_dao.delete_criterio(criterio_id)
+        id_criterio = request.args['id']
+        criterio_json = request.get_json()
+        criterio = criterio_dao.get_criterio_by_id(id_criterio)
 
-            if delete_result:
+        if criterio:
+            resp = criterio_dao.delete_criterio(id_criterio)
+            if (resp):
+                response = make_response(jsonify({"deleted_register":id_criterio}),200)
 
-                response =  make_response(jsonify({"inserted_content":criterio}),201)
-                return response
+            else:
+                response = make_response(jsonify({"error":resp}),500)
+   
+        else:
+            response = make_response(jsonify({"error":"id argument empty"}),500)
 
-        except Exception as error:
-            raise error
+    return response

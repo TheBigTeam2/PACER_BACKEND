@@ -27,7 +27,7 @@ class BaseDao(ABC):
 
     def delete(self, object):
         try:
-            self.session.delete(object)
+            self.session.delete(object) 
             return True
         
         except Exception as error:
@@ -36,7 +36,7 @@ class BaseDao(ABC):
 
 
     def delete_entity_with_commit(self, object) -> bool:
-        is_deleted = self.update(object)
+        is_deleted = self.delete(object)
 
         if is_deleted:
             self.session.commit()

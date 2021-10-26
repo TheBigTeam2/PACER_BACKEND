@@ -3,6 +3,7 @@ from sqlalchemy.orm import relationship
 from models.Base import Base
 from dataclasses import dataclass
 
+@dataclass
 class Criterio(Base):
 
     cri_id: int
