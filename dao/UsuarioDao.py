@@ -47,3 +47,15 @@ class UsuarioDao(BaseDao):
         professores = [self.convert_entity_to_dict(professor) for professor in professores]
 
         return professores
+
+    def update_usuario(self, usuario_to_be_updated: int, usuario_info_json: dict):
+
+        usuario = self.create_usuario(usuario_info_json)
+        usuario.usu_id = usuario_to_be_updated
+
+        self.update_entity_with_commit(usuario)
+
+    def delete_usuario(self, usuario_to_be_deleted: Usuario) -> None:
+        
+        self.delete_entity_with_commit(usuario_to_be_deleted)
+       
