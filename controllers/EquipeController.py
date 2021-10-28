@@ -54,3 +54,21 @@ def update():
         response = make_response(jsonify({"error":"id argument empty"}),500)
 
     return response
+
+@equipe.delete('/equipe')
+def delete():
+    if request.args['id']:
+        id_equipe = request.args['id']
+        equipe = equipe_dao.get_equipe_by_id(id_equipe)
+
+        if equipe:
+            equipe_dao.delete_equipe(equipe)
+            response = make_response(jsonify({"deleted_register":id_equipe}),200)
+
+        else:
+            response = make_response(jsonify({"error":"register not found"}),500)
+   
+    else:
+        response = make_response(jsonify({"error":"id argument empty"}),500)
+
+    return response
