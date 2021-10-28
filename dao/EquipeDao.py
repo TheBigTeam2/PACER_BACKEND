@@ -59,3 +59,8 @@ class EquipeDao(BaseDao):
         equipe.equ_id = equipe_to_be_updated
 
         self.update_entity_with_commit(equipe)
+
+    def delete_equipe(self, equipe_to_be_deleted: Equipe) -> None:
+
+        self.delete_entity_with_commit(equipe_to_be_deleted)
+        
