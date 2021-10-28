@@ -75,3 +75,9 @@ class BaseDao(ABC):
         else:
             self.session.rollback()
             return False
+
+    def get_entity_by_id(self, id_equipe: int, object_type):
+
+        entity = self.session.query(object_type).get(id_equipe)
+
+        return entity
