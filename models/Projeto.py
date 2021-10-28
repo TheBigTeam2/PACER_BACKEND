@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer
+from sqlalchemy import Column, Integer, String, DateTime
 from models.Base import Base
 from models.Equipe import Equipe
 from sqlalchemy.orm import relationship
@@ -13,10 +13,13 @@ class Projeto(Base):
     
     __tablename__ = "projeto"
     pro_id = Column(Integer,primary_key=True)
-    pro_equipe = Column(Integer)
+    pro_tema = Column(String)
+    pro_inicio = Column(DateTime)
+    pro_termino = Column(DateTime)
 
     equipes = relationship(Equipe,secondary=projeto_equipe,back_populates="projetos",lazy=True)
     disciplinas = relationship(Disciplina,secondary=disciplina_projeto,back_populates="projetos",lazy=True)
+
 
     def as_dict(self):
        return {c.name: str(getattr(self, c.name)) for c in self.__table__.columns}
