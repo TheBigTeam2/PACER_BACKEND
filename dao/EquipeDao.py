@@ -1,17 +1,20 @@
 from dao.BaseDao import BaseDao
 from models.Equipe import Equipe
+from models.Projeto import Projeto
+from dao.UsuarioDao import UsuarioDao
 
 class EquipeDao(BaseDao):
 
     def __init__(self) -> None:
         super().__init__()
 
-    def convert_entity_to_dict(self,entity: Equipe) -> dict:
-        
+    def convert_entity_to_dict(self,entity: Equipe, id_projeto = None) -> dict:
+        usuario_dao = UsuarioDao()
         return {
             "equ_id":entity.equ_id,
             "equ_nome":entity.equ_nome,
-            "equ_disciplina":entity.equ_disciplina
+            "equ_disciplina":entity.equ_disciplina,
+            "equ_alunos":[usuario_dao.convert_entity_to_dict(aluno,id_projeto) for aluno in entity.alunos]
         }
 
 
@@ -38,6 +41,16 @@ class EquipeDao(BaseDao):
 
         return equipes
 
+    def get_all_equipes_by_projeto(self, id_projeto: int):
+
+        equipes = self.session.query(Equipe).all()
+        equipes_in_projeto = list()
+
+        for equipe in equipes:
+            for projeto in equipe.projetos:
+                if projeto.pro_id == id_projeto:
+                    equipes_in_projeto.append(equipe) 
+        return [self.convert_entity_to_dict(equipe,id_projeto) for equipe in equipes_in_projeto]        
 
     def get_all_equipes_by_disciplina(self,id_disciplina: int) -> list:
 

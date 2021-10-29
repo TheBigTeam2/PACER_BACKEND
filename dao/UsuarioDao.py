@@ -1,13 +1,34 @@
+from sqlalchemy.sql.elements import and_
 from dao.BaseDao import BaseDao
 from models.Usuario import Usuario
+from models.Avaliacao import Avaliacao
 
 class UsuarioDao(BaseDao):
 
     def __init__(self) -> None:
         super().__init__()
 
-    def convert_entity_to_dict(self,entity: Usuario) -> dict:
+
+    def get_avaliacoes_by_usuario_and_projeto(self,projeto: int, usuario_id: int):
         
+        avaliacoes = self.session.query(Avaliacao).filter(and_(Avaliacao.ava_projeto == projeto,Avaliacao.ava_avaliador == usuario_id)).all()
+
+        return [avaliacao.as_dict() for avaliacao in avaliacoes]
+
+    def convert_entity_to_dict(self,entity: Usuario,projeto: int = None) -> dict:
+
+        if projeto:
+            avaliacoes = self.get_avaliacoes_by_usuario_and_projeto(projeto,entity.usu_id)
+
+            return {
+                "usu_id":entity.usu_id,
+                "usu_rg":entity.usu_rg,
+                "usu_cpf":entity.usu_cpf,
+                "usu_nome":entity.usu_nome,
+                "usu_auth":entity.usu_auth,
+                "avaliacoes":avaliacoes
+            }
+            
         return {
             "usu_id":entity.usu_id,
             "usu_rg":entity.usu_rg,
