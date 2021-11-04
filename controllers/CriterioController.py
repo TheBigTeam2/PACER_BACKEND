@@ -2,17 +2,16 @@ from flask.blueprints import Blueprint
 from dao.CriterioDao import CriterioDao
 from flask import request, jsonify, make_response
 
-criterio_dao = CriterioDao()
 criterio = Blueprint("criterio",__name__)
 
 @criterio.get('/criterios')
 def get_alunos():
-
+    criterio_dao = CriterioDao()
     return jsonify(criterio_dao.get_all_criterios())
 
 @criterio.post('/criterio')
 def insert():
-
+    criterio_dao = CriterioDao()
     criterio = request.get_json()
 
     try:
@@ -31,7 +30,7 @@ def insert():
     
 @criterio.put('/criterio')
 def update():
-
+    criterio_dao = CriterioDao()
     if request.args['id']:
         id_criterio = request.args['id']
         criterio_json = request.get_json()
@@ -51,6 +50,7 @@ def update():
 
 @criterio.delete('/criterios')
 def delete():
+    criterio_dao = CriterioDao()
 
     if request.args['id']:
         id_criterio = request.args['id']
