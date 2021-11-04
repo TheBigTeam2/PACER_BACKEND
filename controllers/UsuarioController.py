@@ -24,14 +24,16 @@ def insert():
 
     try:
         insertion_result = usuario_dao.save_usuario(usuario)
-
         if insertion_result:
-
             response =  make_response(jsonify({"inserted_content":usuario}),201)
+            return response
+        else:
+            response = make_response(jsonify({"error":"register duplicated"}),500)
             return response
 
     except Exception as error:
-        raise error
+        response = make_response(jsonify({"error":"Entrada duplicada"}),500)
+        return response
 
 @usuario.put('/usuario')
 def update():

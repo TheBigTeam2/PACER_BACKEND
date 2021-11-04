@@ -10,7 +10,7 @@ def get_alunos():
 
     return jsonify(criterio_dao.get_all_criterios())
 
-@criterio.post('/criterios')
+@criterio.post('/criterio')
 def insert():
 
     criterio = request.get_json()
@@ -19,14 +19,17 @@ def insert():
         insertion_result = criterio_dao.save_criterio(criterio)
 
         if insertion_result:
-
             response =  make_response(jsonify({"inserted_content":criterio}),201)
+            return response
+        else:
+            response = make_response(jsonify({"error":"Entrada duplicada"}),500)
             return response
 
     except Exception as error:
-        raise error
+        response = make_response(jsonify({"error":"Entrada duplicada"}),500)
+        return response
     
-@criterio.put('/criterios')
+@criterio.put('/criterio')
 def update():
 
     if request.args['id']:
