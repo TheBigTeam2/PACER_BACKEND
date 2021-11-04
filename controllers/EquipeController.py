@@ -2,18 +2,17 @@ from flask.blueprints import Blueprint
 from dao.EquipeDao import EquipeDao
 from flask import request, jsonify, make_response
 
-equipe_dao = EquipeDao()
 equipe = Blueprint("equipe",__name__)
 
 @equipe.get('/equipes')
 def get_equipes():
-
+    equipe_dao = EquipeDao()
     return jsonify(equipe_dao.get_all_equipes())
 
 
 @equipe.get('/equipes')
 def get_equipes_by_disciplina():
-
+    equipe_dao = EquipeDao()
     if request.args['disciplina']:
         id_avaliador = request.args['disciplina']
         return jsonify(equipe_dao.get_all_equipes_by_disciplina(id_avaliador))    
@@ -21,13 +20,14 @@ def get_equipes_by_disciplina():
 
 @equipe.get('/equipe')
 def get_equipe_by_projet():
+    equipe_dao = EquipeDao()
     if request.args['projeto']:
         id_projeto = int(request.args['projeto'])
         return jsonify(equipe_dao.get_all_equipes_by_projeto(id_projeto))
 
 @equipe.post('/equipe')
 def insert():
-
+    equipe_dao = EquipeDao()
     equipe = request.get_json()
 
     try:
@@ -43,7 +43,7 @@ def insert():
 
 @equipe.put('/equipe')
 def update():
-
+    equipe_dao = EquipeDao()
     if request.args['id']:
         id_equipe = request.args['id']
         equipe_json = request.get_json()
@@ -63,6 +63,7 @@ def update():
 
 @equipe.delete('/equipe')
 def delete():
+    equipe_dao = EquipeDao()
     if request.args['id']:
         id_equipe = request.args['id']
         equipe = equipe_dao.get_equipe_by_id(id_equipe)
