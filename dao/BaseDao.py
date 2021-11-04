@@ -6,6 +6,10 @@ class BaseDao(ABC):
     def __init__(self) -> None:
         self.session = SingleSession.get_session()
 
+    def __del__(self) -> None:
+        print('fechando')
+        self.session.close()
+
     def save(self,object):
         
         try:

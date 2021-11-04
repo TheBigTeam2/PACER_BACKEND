@@ -18,9 +18,5 @@ class SingleSession:
             
             return Session(engine)
 
-        if hasattr(SingleSession,"session"):
-            return SingleSession.session
-
-        else:
-            SingleSession.session = create_session()
-            return SingleSession.session
+        SingleSession.session = create_session()
+        return SingleSession.session
