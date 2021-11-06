@@ -48,7 +48,7 @@ def update():
 
     return response
 
-@criterio.delete('/criterios')
+@criterio.delete('/criterio')
 def delete():
     criterio_dao = CriterioDao()
 
