@@ -79,3 +79,17 @@ def delete():
         response = make_response(jsonify({"error":"id argument empty"}),500)
 
     return response
+
+
+@equipe.put('/atribuir')
+def atribuir():
+    equipe_dao = EquipeDao()
+    equipe_json = request.get_json()
+    id_equipe = equipe_json["equipe"]
+    equipe = equipe_dao.get_equipe_by_id(id_equipe)
+    if equipe:
+        equipe_dao.update_equipe_alunos(id_equipe,equipe_json)
+        response = make_response(jsonify({"updated_register":id_equipe}),200)
+    else:
+        response = make_response(jsonify({"error":"register not found"}),500)
+    return response

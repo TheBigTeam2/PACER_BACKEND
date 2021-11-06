@@ -3,7 +3,10 @@ from sqlalchemy.orm import relationship
 from models.Base import Base
 from models.Aluno import Aluno
 from models.Usuario import Usuario
+
 from models.relationship_tables.aluno_equipe import aluno_equipe
+#from models.AlunoEquipe import AlunoEquipe
+
 from models.relationship_tables.projeto_equipe import projeto_equipe
 from dataclasses import dataclass
 
@@ -15,10 +18,10 @@ class Equipe(Base):
 
     __tablename__ = "equipe"
     equ_id = Column(Integer,primary_key=True)
-    equ_disciplina = Column(Integer)
     equ_nome = Column(String)
+    equ_disciplina = Column(Integer)
 
-    alunos = relationship(Usuario,secondary=aluno_equipe,back_populates="equipes")
+    alunos = relationship(Usuario,secondary=aluno_equipe,back_populates="equipes", lazy=True)
     projetos = relationship("Projeto",secondary=projeto_equipe,back_populates="equipes")
 
     def as_dict(self):

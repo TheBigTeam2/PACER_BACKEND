@@ -2,11 +2,14 @@ from dao.BaseDao import BaseDao
 from models.Equipe import Equipe
 from models.Projeto import Projeto
 from dao.UsuarioDao import UsuarioDao
+from models.Usuario import Usuario
+
 
 class EquipeDao(BaseDao):
 
     def __init__(self) -> None:
         super().__init__()
+
 
     def convert_entity_to_dict(self,entity: Equipe, id_projeto = None) -> dict:
         usuario_dao = UsuarioDao()
@@ -72,8 +75,37 @@ class EquipeDao(BaseDao):
         equipe.equ_id = equipe_to_be_updated
 
         self.update_entity_with_commit(equipe)
-
+        
     def delete_equipe(self, equipe_to_be_deleted: Equipe) -> None:
 
         self.delete_entity_with_commit(equipe_to_be_deleted)
+
+
+    def create_equipe_alunos(self,json: dict) -> Equipe:
+        return Equipe(
+            equ_nome = json["nome"],
+            equ_disciplina = json["disciplina"],
+            equ_alunos = json["alunos"]
+        )
+
+
+    def define_alunos(self,json: dict) -> list:
+        usuarioDao = UsuarioDao()
+
+        entitys = []
+        for id_usuario in json["alunos"]:
+            entitys.append(usuarioDao.get_entity_by_id(id_usuario,Usuario))
+        return entitys
+
+
+
+    def update_equipe_alunos(self,equipe_to_be_updated: int, equipe_info_json: dict) -> None:
+        equipe = self.get_equipe_by_id(equipe_to_be_updated)
+        equipe.alunos = []
+        self.update_entity_with_commit(equipe)
+        equipe.alunos = self.define_alunos(equipe_info_json)
+        self.update_entity_with_commit(equipe)
         
+
+        
+

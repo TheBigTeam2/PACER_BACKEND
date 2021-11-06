@@ -1,7 +1,10 @@
 from sqlalchemy import Integer, ForeignKey, Column
 from sqlalchemy.orm import relationship
 from models.Usuario import Usuario
+
 from models.relationship_tables.aluno_equipe import aluno_equipe
+# from models.AlunoEquipe import AlunoEquipe
+
 from dataclasses import dataclass
 
 @dataclass
