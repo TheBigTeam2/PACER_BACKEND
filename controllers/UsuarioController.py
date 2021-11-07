@@ -35,6 +35,31 @@ def insert():
         response = make_response(jsonify({"error":"Entrada duplicada"}),500)
         return response
 
+@usuario.post('/usuarios')
+def insert_in_mass():
+    usuario_dao = UsuarioDao()
+    usuarios_csv = request.get_json()
+    all_usuarios = usuario_dao.get_all_usuarios()
+    usuarios_pruned = []
+
+    try:
+        for busca in all_usuarios:
+            for usu in usuarios_csv:
+                if (usu['usu_rg'] == busca['usu_rg']):
+                   usuarios_csv.remove(usu)
+        
+        insertion_result = usuario_dao.save_usuarios_in_mass(usuarios_csv)
+
+        if insertion_result:
+
+            response =  make_response(jsonify({"inserted_content":usuarios_csv}),201)
+            return response
+
+    except Exception as error:
+        response = make_response(jsonify({"error":"Usuario duplicado"}),500)
+        return response
+
+
 @usuario.put('/usuario')
 def update():
 
