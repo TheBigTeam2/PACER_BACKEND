@@ -5,6 +5,7 @@ from controllers.EquipeController import equipe
 from controllers.UsuarioController import usuario
 from controllers.AvaliacaoController import avaliacao
 from controllers.CriterioController import criterio
+from controllers.AutenticacaoController import autenticacao
 from controllers.AlunoEquipeController import alunoequipe
 
 app = Flask(__name__)
@@ -15,6 +16,7 @@ app.register_blueprint(equipe)
 app.register_blueprint(usuario)
 app.register_blueprint(avaliacao)
 app.register_blueprint(criterio)
+app.register_blueprint(autenticacao)
 app.register_blueprint(alunoequipe)
 
 app.run(port=8085,debug=True)
