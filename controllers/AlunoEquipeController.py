@@ -1,11 +1,12 @@
 from flask.blueprints import Blueprint
-from dao.UsuarioDao import UsuarioDao
+from dao.AlunoEquipeDao import AlunoEquipeDao
 from flask import request, jsonify, make_response
 
-from models.Usuario import Usuario
+from models.relationship_tables.aluno_equipe import aluno_equipe
 
-usuario = Blueprint("usuario",__name__)
+alunoequipe = Blueprint("alunoequipe",__name__)
 
+'''
 @usuario.get('/alunos')
 def get_alunos():
     usuario_dao = UsuarioDao()
@@ -15,51 +16,30 @@ def get_alunos():
 def get_professores():
     usuario_dao = UsuarioDao()
     return jsonify(usuario_dao.get_all_usuarios_by_professor())
+'''
 
-@usuario.post('/usuario')
+@alunoequipe.post('/miajuda')
 def insert():
 
-    usuario = request.get_json()
+    aluno_equipe = request.get_json()
 
     try:
-        usuario_dao = UsuarioDao()
-        insertion_result = usuario_dao.save_usuario(usuario)
+        aluno_equipe_dao = AlunoEquipeDao()
+
+        insertion_result = aluno_equipe_dao.save_alunos_equipe_in_mass(aluno_equipe)
         if insertion_result:
-            response =  make_response(jsonify({"inserted_content":usuario}),201)
+            response =  make_response(jsonify({"inserted_content":aluno_equipe}),201)
             return response
+        '''
         else:
             response = make_response(jsonify({"error":"register duplicated"}),500)
             return response
-
+        '''
     except Exception as error:
-        response = make_response(jsonify({"error":"Entrada duplicada"}),500)
-        return response
+        # response = make_response(jsonify({"error":"Entrada duplicada"}),500)
+        raise error
 
-@usuario.post('/usuarios')
-def insert_in_mass():
-    usuario_dao = UsuarioDao()
-    usuarios_csv = request.get_json()
-    all_usuarios = usuario_dao.get_all_usuarios()
-    usuarios_pruned = []
-
-    try:
-        for busca in all_usuarios:
-            for usu in usuarios_csv:
-                if (usu['usu_rg'] == busca['usu_rg']):
-                   usuarios_csv.remove(usu)
-        
-        insertion_result = usuario_dao.save_usuarios_in_mass(usuarios_csv)
-
-        if insertion_result:
-
-            response =  make_response(jsonify({"inserted_content":usuarios_csv}),201)
-            return response
-
-    except Exception as error:
-        response = make_response(jsonify({"error":"Usuario duplicado"}),500)
-        return response
-
-
+'''
 @usuario.put('/usuario')
 def update():
 
@@ -99,3 +79,6 @@ def delete():
         response = make_response(jsonify({"error":"id argument empty"}),500)
 
     return response
+
+'''
+            

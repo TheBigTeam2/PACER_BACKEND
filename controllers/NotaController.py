@@ -16,6 +16,10 @@ def insert():
 
             response =  make_response(jsonify({"inserted_content":notas}),201)
             return response
+        else:
+            response = make_response(jsonify({"error":"Entrada duplicada"}),500)
+            return response
 
     except Exception as error:
-        raise error
+        response = make_response(jsonify({"error":"Entrada duplicada"}),500)
+        return response

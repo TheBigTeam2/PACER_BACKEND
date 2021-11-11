@@ -40,10 +40,10 @@ class UsuarioDao(BaseDao):
     def create_usuario(self,json: dict) -> Usuario:
 
         return Usuario(
-            usu_rg = json["rg"],
-            usu_cpf = json["cpf"],
-            usu_nome = json["nome"],
-            usu_auth = json["auth"]
+            usu_rg = json["usu_rg"],
+            usu_cpf = json["usu_cpf"],
+            usu_nome = json["usu_nome"],
+            usu_auth = json["usu_auth"]
 
         )
 
@@ -52,6 +52,12 @@ class UsuarioDao(BaseDao):
         entitys = self.create_usuario(object)
 
         return self.save_entity_with_commit(entitys)
+    
+    def save_usuarios_in_mass(self, usuarios_collection: list):
+
+        entitys = [self.create_usuario(usuario) for usuario in usuarios_collection]
+
+        return self.save_entity_in_mass(entitys)
 
     def get_all_usuarios_by_aluno(self) -> list:
 
@@ -60,6 +66,21 @@ class UsuarioDao(BaseDao):
         alunos = [self.convert_entity_to_dict(aluno) for aluno in alunos]
 
         return alunos
+
+
+    def get_all_alunos(self) -> list:
+        alunos = self.session.query(Usuario).filter(Usuario.usu_auth == "Aluno").all()
+
+        return alunos
+
+    
+    def get_all_usuarios(self) -> list:
+
+        usuarios = self.session.query(Usuario).all()
+
+        usuarios = [self.convert_entity_to_dict(usuario) for usuario in usuarios]
+
+        return usuarios
     
     def get_all_usuarios_by_professor(self) -> list:
 
@@ -80,3 +101,7 @@ class UsuarioDao(BaseDao):
         
         self.delete_entity_with_commit(usuario_to_be_deleted)
        
+
+    def get_alunos_by_ids(self, json: dict) -> list:
+        alunos = self.session.query(Usuario).filter(Usuario.usu_id in json["alunos"]).all()
+        return alunos

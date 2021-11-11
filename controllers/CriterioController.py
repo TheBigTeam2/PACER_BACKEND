@@ -5,7 +5,7 @@ from flask import request, jsonify, make_response
 criterio = Blueprint("criterio",__name__)
 
 @criterio.get('/criterios')
-def get_alunos():
+def get_criterios():
     criterio_dao = CriterioDao()
     return jsonify(criterio_dao.get_all_criterios())
 
@@ -48,7 +48,7 @@ def update():
 
     return response
 
-@criterio.delete('/criterios')
+@criterio.delete('/criterio')
 def delete():
     criterio_dao = CriterioDao()
 

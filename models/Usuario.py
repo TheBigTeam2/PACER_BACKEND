@@ -2,6 +2,8 @@ from sqlalchemy import Column, Integer, String
 from sqlalchemy.orm import relationship
 from models.Base import Base
 from dataclasses import dataclass
+
+#from models.AlunoEquipe import AlunoEquipe
 from models.relationship_tables.aluno_equipe import aluno_equipe
 
 class Usuario(Base):
