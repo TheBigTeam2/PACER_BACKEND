@@ -19,6 +19,7 @@ class Usuario(Base):
     usu_cpf = Column(String)
     usu_nome = Column(String)    
     usu_auth = Column(String)
+    usu_senha = Column(String)
 
     equipes = relationship("Equipe",secondary=aluno_equipe,back_populates="alunos")
 
