@@ -21,7 +21,7 @@ class Equipe(Base):
     equ_nome = Column(String)
     equ_disciplina = Column(Integer)
 
-    alunos = relationship(Usuario,secondary=aluno_equipe,back_populates="equipes", lazy=True)
+    alunos = relationship(Usuario,secondary=aluno_equipe,back_populates="equipes")
     projetos = relationship("Projeto",secondary=projeto_equipe,back_populates="equipes")
 
     def as_dict(self):
