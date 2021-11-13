@@ -1,12 +1,14 @@
 from flask.blueprints import Blueprint
 from dao.UsuarioDao import UsuarioDao
 from flask import request, jsonify, make_response
+from services.Auth import AuthService, token_required 
 
 from models.Usuario import Usuario
 
 usuario = Blueprint("usuario",__name__)
 
 @usuario.get('/alunos')
+@token_required
 def get_alunos():
     usuario_dao = UsuarioDao()
     return jsonify(usuario_dao.get_all_usuarios_by_aluno())

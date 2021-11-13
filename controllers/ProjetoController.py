@@ -1,10 +1,12 @@
 from flask.blueprints import Blueprint
 from dao.ProjetoDao import ProjetoDao 
 from flask import request, jsonify, make_response
+from services.Auth import AuthService, token_required 
 
 projeto = Blueprint("projeto",__name__)
 
 @projeto.get('/projetos')
+@token_required
 def get_projetos():
     projeto_dao = ProjetoDao()
     return jsonify(projeto_dao.get_all_projetos())

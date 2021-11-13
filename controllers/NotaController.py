@@ -1,9 +1,11 @@
 from flask.blueprints import Blueprint
 from dao.NotaDao import NotaDao
 from flask import request, jsonify, make_response
+from services.Auth import AuthService, token_required 
 
 nota = Blueprint("nota",__name__)
 
+@token_required
 @nota.post('/nota')
 def insert():
     nota_dao = NotaDao()

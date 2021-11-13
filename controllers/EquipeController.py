@@ -1,7 +1,7 @@
 from flask.blueprints import Blueprint
 from dao.EquipeDao import EquipeDao
 from flask import request, jsonify, make_response
-from services.Auth import AuthService, token_required
+from services.Auth import AuthService, token_required 
 
 equipe = Blueprint("equipe",__name__)
 

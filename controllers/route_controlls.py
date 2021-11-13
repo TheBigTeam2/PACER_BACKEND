@@ -1,3 +1,9 @@
 routes_access = {
-    'equipes':['Aluno']
+    'avaliacoes':['Professor'],
+    'criterios':['Professor'],
+    'disciplinas':['Professor'],
+    'equipes':['Aluno'],
+    'notas':[''],
+    'projetos':['Professor'],
+    'usuarios':['Professor']
 }

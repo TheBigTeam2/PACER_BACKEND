@@ -1,10 +1,12 @@
 from flask.blueprints import Blueprint
 from dao.DisciplinaDao import DisciplinaDao 
 from flask import request, jsonify, make_response
+from services.Auth import AuthService, token_required 
 
 disciplina = Blueprint("disciplina",__name__)
 
 @disciplina.get('/disciplinas')
+@token_required
 def get_disciplinas():
     disciplina_dao = DisciplinaDao()
     return jsonify(disciplina_dao.get_all_disciplinas())

@@ -1,10 +1,11 @@
 from flask import Blueprint, request, jsonify, make_response
 from dao.AvaliacaoDao import AvaliacaoDao
+from services.Auth import AuthService, token_required 
 
 avaliacao = Blueprint("avaliacao",__name__)
 
-
 @avaliacao.get('/avaliacao')
+@token_required
 def get_avaliacao():
     avaliacao_dao = AvaliacaoDao()
     if request.args['avaliador']:

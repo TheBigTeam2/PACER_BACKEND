@@ -1,10 +1,12 @@
 from flask.blueprints import Blueprint
 from dao.CriterioDao import CriterioDao
 from flask import request, jsonify, make_response
+from services.Auth import AuthService, token_required 
 
 criterio = Blueprint("criterio",__name__)
 
 @criterio.get('/criterios')
+@token_required
 def get_criterios():
     criterio_dao = CriterioDao()
     return jsonify(criterio_dao.get_all_criterios())
