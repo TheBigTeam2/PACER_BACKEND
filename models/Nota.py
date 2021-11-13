@@ -8,7 +8,7 @@ from dataclasses import dataclass
 class Nota(Base):
     not_id: int
     not_avaliacao: int
-    nor_criterio: str
+    not_criterio: int
     not_valor: int
     
     __tablename__ = "nota"
