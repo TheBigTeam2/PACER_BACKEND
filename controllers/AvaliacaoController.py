@@ -18,14 +18,12 @@ def post_avaliacao():
     avaliacao = request.get_json()
 
     try:
-        insertion_result = avaliacao_dao.save_avaliacao_in_mass(avaliacao)
+        avaliacao_dao.sort_avaliacoes((avaliacao))
 
-        if insertion_result:
-
-            response =  make_response(jsonify({"inserted_content":avaliacao}),201)
-            return response
+        response =  make_response(jsonify({"inserted_content":avaliacao}),201)
+        return response
 
     except Exception as error:
-        raise error
+        return make_response(jsonify({"error":str(error)}),500)
     
 

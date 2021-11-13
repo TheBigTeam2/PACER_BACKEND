@@ -10,7 +10,7 @@ class NotaDao(BaseDao):
 
         return Nota(
             not_avaliacao = json["avaliacao"],
-            nor_criterio = json["criterio"],
+            not_criterio = json["criterio"],
             not_valor = json["nota"]
         )
 

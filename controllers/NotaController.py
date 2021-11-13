@@ -23,5 +23,5 @@ def insert():
             return response
 
     except Exception as error:
-        response = make_response(jsonify({"error":"Entrada duplicada"}),500)
+        response = make_response(jsonify({"error":str(error)}),500)
         return response
