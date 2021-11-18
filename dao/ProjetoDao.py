@@ -1,4 +1,5 @@
 from dao.BaseDao import BaseDao
+from dao.EquipeDao import EquipeDao
 from models.Projeto import Projeto
 from dao.DisciplinaDao import DisciplinaDao
 
@@ -58,3 +59,48 @@ class ProjetoDao(BaseDao):
         projeto = self.get_projeto_by_id(projeto_to_be_deleted)
 
         return self.delete_entity_with_commit(projeto)
+
+
+    ## RELACIONANDO PROJETOS E EQUIPES
+
+    def atribuir_projeto_equipe(self, entitys, id_equipe: int) -> list:
+        equipe_dao = EquipeDao()
+        equipe = equipe_dao.get_equipe_by_id(id_equipe)
+        if equipe:
+            entitys.append(equipe)
+            return entitys
+        else:
+            return entitys
+
+
+    def incluir_projeto_equipe(self, json: dict) -> None:
+        projeto = self.get_projeto_by_id(json["projeto"])
+        entitys = []
+        if projeto.equipes:
+            for equipe_previa in projeto.equipes:
+                entitys.append(equipe_previa)
+
+        projeto.equipes = self.atribuir_projeto_equipe(entitys, json["equipe"])
+        return self.update_entity_with_commit(projeto)
+
+
+    def substituir_projeto_equipe(self, json:dict) -> None:
+        projeto = self.get_projeto_by_id(json["projeto"])
+        if projeto:
+            entitys = []
+            projeto.equipes = self.atribuir_projeto_equipe(entitys, json["equipe"])
+            return self.update_entity_with_commit(projeto)
+
+
+    def remover_projeto_equipe(self, json:dict) -> None:
+        projeto = self.get_projeto_by_id(json["projeto"])
+        if projeto and projeto.equipes:
+            equipe_dao = EquipeDao()
+            equipe = equipe_dao.get_equipe_by_id(json["equipe"])
+            if equipe in projeto.equipes:
+                projeto.equipes.remove(equipe)
+                return self.update_entity_with_commit(projeto)
+            else:
+                return 404
+        else:
+            return 404
