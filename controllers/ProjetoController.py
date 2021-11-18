@@ -1,7 +1,8 @@
 from flask.blueprints import Blueprint
 from dao.ProjetoDao import ProjetoDao 
 from flask import request, jsonify, make_response
-from services.Auth import AuthService, token_required 
+from services.Auth import AuthService, token_required
+from dao.DisciplinaDao import DisciplinaDao
 
 projeto = Blueprint("projeto",__name__)
 
@@ -27,6 +28,7 @@ def insert():
             return response
 
     except Exception as error:
+        print(error)
         response = make_response(jsonify({"error":"Entrada duplicada"}),500)
         return response
     

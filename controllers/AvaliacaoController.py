@@ -18,7 +18,7 @@ def post_avaliacao():
     avaliacao = request.get_json()
 
     try:
-        avaliacao_dao.sort_avaliacoes((avaliacao))
+        avaliacao_dao.sort_avaliacoes([avaliacao])
 
         response =  make_response(jsonify({"inserted_content":avaliacao}),201)
         return response

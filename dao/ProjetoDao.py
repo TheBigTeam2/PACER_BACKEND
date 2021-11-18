@@ -1,5 +1,6 @@
 from dao.BaseDao import BaseDao
 from models.Projeto import Projeto
+from dao.DisciplinaDao import DisciplinaDao
 
 class ProjetoDao(BaseDao):
 
@@ -7,21 +8,22 @@ class ProjetoDao(BaseDao):
         super().__init__()
 
     def convert_entity_to_dict(self,entity: Projeto) -> dict:
-        
+        disciplina_dao = DisciplinaDao()
         return {
             "pro_id":entity.pro_id,
             "pro_tema":entity.pro_tema,
             "pro_inicio":entity.pro_inicio,
-            "pro_termino":entity.pro_termino
+            "pro_termino":entity.pro_termino,
+            "pro_disciplinas": [disciplina_dao.convert_entity_to_dict(disciplina) for disciplina in entity.disciplinas]
         }
 
     def create_projeto(self,json: dict) -> Projeto:
-
+        disciplina_dao = DisciplinaDao()
         return Projeto(
             pro_tema = json["pro_tema"],
             pro_inicio = json["pro_inicio"],
             pro_termino = json["pro_termino"],
-
+            disciplinas = [disciplina_dao.get_disciplina_by_id(disciplina["dis_id"]) for disciplina in json["disciplinas"]]
         )
 
     def save_projeto(self,object):

@@ -18,7 +18,7 @@ class Projeto(Base):
     pro_termino = Column(DateTime)
 
     equipes = relationship(Equipe,secondary=projeto_equipe,back_populates="projetos",lazy=True)
-    disciplinas = relationship(Disciplina,secondary=disciplina_projeto,back_populates="projetos",lazy=True)
+    disciplinas = relationship(Disciplina,secondary=disciplina_projeto,back_populates="projetos")
 
 
     def as_dict(self):

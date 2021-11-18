@@ -59,7 +59,7 @@ class AuthService:
     def _generate_token(self,usuario: Usuario) -> str:
         
         payload = {
-            "user":usuario.usu_cpf,
+            "user":usuario.as_dict(),
             "role":usuario.usu_auth,
             "exp":datetime.utcnow() + timedelta(minutes=30)
         }
