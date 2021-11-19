@@ -1,5 +1,4 @@
 from dao.BaseDao import BaseDao
-from dao.EquipeDao import EquipeDao
 from models.Projeto import Projeto
 from dao.DisciplinaDao import DisciplinaDao
 
@@ -64,6 +63,7 @@ class ProjetoDao(BaseDao):
     ## RELACIONANDO PROJETOS E EQUIPES
 
     def atribuir_projeto_equipe(self, entitys, id_equipe: int) -> list:
+        from dao.EquipeDao import EquipeDao
         equipe_dao = EquipeDao()
         equipe = equipe_dao.get_equipe_by_id(id_equipe)
         if equipe:
@@ -93,6 +93,7 @@ class ProjetoDao(BaseDao):
 
 
     def remover_projeto_equipe(self, json:dict) -> None:
+        from dao.EquipeDao import EquipeDao
         projeto = self.get_projeto_by_id(json["projeto"])
         if projeto and projeto.equipes:
             equipe_dao = EquipeDao()
