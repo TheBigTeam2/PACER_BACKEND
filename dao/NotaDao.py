@@ -6,6 +6,15 @@ class NotaDao(BaseDao):
     def __init__(self) -> None:
         super().__init__()
 
+    def convert_entity_to_dict(self, entity: Nota) -> dict:
+
+        return {
+            "not_id": entity.not_id,
+            "not_avaliacao":entity.not_avaliacao,
+            "not_criterio": entity.not_criterio,
+            "not_valor": entity.not_valor
+        } 
+
     def create_nota(self,json: dict) -> Nota:
 
         return Nota(

@@ -1,4 +1,5 @@
 from sqlalchemy.sql.elements import and_
+from dao.AvaliacaoDao import AvaliacaoDao
 from dao.BaseDao import BaseDao
 from models.Usuario import Usuario
 from models.Avaliacao import Avaliacao
@@ -10,10 +11,10 @@ class UsuarioDao(BaseDao):
 
 
     def get_avaliacoes_by_usuario_and_projeto(self,projeto: int, usuario_id: int):
-        
+        avaliacao_dao = AvaliacaoDao()
         avaliacoes = self.session.query(Avaliacao).filter(and_(Avaliacao.ava_projeto == projeto,Avaliacao.ava_avaliador == usuario_id)).all()
 
-        return [avaliacao.as_dict() for avaliacao in avaliacoes]
+        return [avaliacao_dao.convert_entity_to_dict(avaliacao) for avaliacao in avaliacoes]
 
     def convert_entity_to_dict(self,entity: Usuario,projeto: int = None) -> dict:
 
