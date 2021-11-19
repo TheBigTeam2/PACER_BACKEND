@@ -52,7 +52,7 @@ class AuthService:
 
         if usuario:
             token = self._generate_token(usuario)
-            return {"cpf":usuario.usu_cpf, "token":token}
+            return { "usu_id": usuario.usu_id, "usu_nome":usuario.usu_nome, "usu_auth":usuario.usu_auth, "usu_cpf":usuario.usu_cpf, "token": token}
 
         return False
 
