@@ -1,4 +1,5 @@
 from dao.BaseDao import BaseDao
+from dao.NotaDao import NotaDao
 from models.Avaliacao import Avaliacao
 from dao.ProjetoDao import ProjetoDao
 import random
@@ -6,7 +7,7 @@ import random
 class AvaliacaoDao(BaseDao):
 
     def convert_entity_to_dict(self,entity: Avaliacao) -> dict:
-        
+        nota_dao = NotaDao()
         return {
             "ava_id":entity.ava_id,
             "ava_sprint":entity.ava_sprint,
@@ -14,7 +15,8 @@ class AvaliacaoDao(BaseDao):
             "ava_termino":entity.ava_termino,
             "ava_avaliado":entity.ava_avaliado,
             "ava_avaliador":entity.ava_avaliador,
-            "ava_projeto":entity.ava_projeto
+            "ava_projeto":entity.ava_projeto,
+            "ava_notas":[nota_dao.convert_entity_to_dict(nota) for nota in entity.notas]
         }
 
     def create_avaliacao(self,json: dict) -> Avaliacao:
