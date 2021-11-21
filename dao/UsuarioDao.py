@@ -44,8 +44,8 @@ class UsuarioDao(BaseDao):
             usu_rg = json["usu_rg"],
             usu_cpf = json["usu_cpf"],
             usu_nome = json["usu_nome"],
-            usu_auth = json["usu_auth"]
-
+            usu_auth = json["usu_auth"],
+            usu_senha = "mudar!@#"
         )
 
     def save_usuario(self,object):

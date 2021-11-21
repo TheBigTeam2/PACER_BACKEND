@@ -58,6 +58,7 @@ def insert_in_mass():
             return response
 
     except Exception as error:
+        print(error)
         response = make_response(jsonify({"error":"Usuario duplicado"}),500)
         return response
 
