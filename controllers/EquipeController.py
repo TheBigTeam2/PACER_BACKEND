@@ -95,3 +95,10 @@ def atribuir():
     else:
         response = make_response(jsonify({"error":"register not found"}),500)
     return response
+
+
+@equipe.get('/equipe_aluno')
+def equipe_by_aluno():
+    equipe_dao = EquipeDao()
+
+    return jsonify(equipe_dao.get_equipes_by_aluno(request.get_json()["aluno"]))
