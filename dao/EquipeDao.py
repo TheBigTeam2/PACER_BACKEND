@@ -109,9 +109,11 @@ class EquipeDao(BaseDao):
 
     def get_equipes_by_aluno(self, id_aluno: int) -> None:#list:
         usuario_dao = UsuarioDao()
+        equipe_dao = EquipeDao()
         usuario = usuario_dao.get_entity_by_id(id_aluno, Usuario)
         equipes = []
         for equipe in usuario.equipes:
-            equipes.append(equipe)
+            equipe = equipe_dao.get_equipe_by_id(equipe.equ_id)
+            equipes.append(equipe.as_dict())
 
         return equipes

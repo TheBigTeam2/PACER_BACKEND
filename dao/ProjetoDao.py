@@ -62,6 +62,23 @@ class ProjetoDao(BaseDao):
 
     ## RELACIONANDO PROJETOS E EQUIPES
 
+    def buscar_projetos_da_equipe(self, idEquipe):
+        projetos = self.session.query(Projeto).all()
+
+        projetosFiltrados = []
+
+        for projeto in projetos:
+            equipes = projeto.equipes
+            equipePertence = False
+            for equipe in equipes:
+                print(equipe.equ_id, idEquipe)
+                if int(equipe.equ_id) == int(idEquipe):
+                    equipePertence = True
+            if equipePertence:
+                projetosFiltrados.append(projeto.as_dict())
+
+        return projetosFiltrados
+
     def atribuir_projeto_equipe(self, entitys, id_equipe: int) -> list:
         from dao.EquipeDao import EquipeDao
         equipe_dao = EquipeDao()

@@ -21,8 +21,13 @@ class Equipe(Base):
     equ_nome = Column(String)
     equ_disciplina = Column(Integer)
 
-    alunos = relationship(Usuario,secondary=aluno_equipe,back_populates="equipes")
+    alunos = relationship(Usuario,secondary=aluno_equipe,back_populates="equipes", lazy=False)
     projetos = relationship("Projeto",secondary=projeto_equipe,back_populates="equipes")
 
     def as_dict(self):
-       return {c.name: str(getattr(self, c.name)) for c in self.__table__.columns}
+       return {
+           "equ_id": self.equ_id,
+           "equ_disciplina": self.equ_disciplina,
+           "equ_nome": self.equ_nome,
+           "equ_alunos": [aluno.as_dict_simple() for aluno in self.alunos]
+       }

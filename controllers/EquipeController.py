@@ -100,5 +100,6 @@ def atribuir():
 @equipe.get('/equipe_aluno')
 def equipe_by_aluno():
     equipe_dao = EquipeDao()
-
-    return jsonify(equipe_dao.get_equipes_by_aluno(request.get_json()["aluno"]))
+    if request.args['aluno']:
+        aluno = request.args['aluno']
+        return jsonify(equipe_dao.get_equipes_by_aluno(aluno))

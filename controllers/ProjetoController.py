@@ -79,6 +79,14 @@ def delete():
 
 ## RELACIONANDO PROJETOS E EQUIPES
 
+@projeto.get('/projeto_equipe')
+def buscar_projetos_da_equipe():
+    projeto_dao = ProjetoDao()
+    equipe = request.args['equipe']
+
+    return jsonify(projeto_dao.buscar_projetos_da_equipe(equipe))
+
+
 @projeto.post('/projeto_equipe')
 def incluir_projeto_equipe():
     projeto_dao = ProjetoDao()
@@ -119,7 +127,10 @@ def substituir_projeto_equipe():
 @projeto.delete('/projeto_equipe')
 def remover_projeto_equipe():
     projeto_dao = ProjetoDao()
-    json = request.get_json()
+    json = {
+        "projeto": request.args["projeto"],
+        "equipe": request.args["equipe"]
+    }
 
     deletion_result = projeto_dao.remover_projeto_equipe(json)
     if deletion_result:
