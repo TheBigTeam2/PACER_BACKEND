@@ -99,6 +99,9 @@ class AvaliacaoDao(BaseDao):
 
             if second_to_be_avaliado > len(alunos) -1:
                 second_to_be_avaliado = 1
+
+                if second_to_be_avaliado == index:
+                    second_to_be_avaliado = second_to_be_avaliado - 1
             
             first = self.create_avaliacao({
                     "ava_sprint":avaliacao.get('ava_sprint'),
