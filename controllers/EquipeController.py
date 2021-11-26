@@ -19,7 +19,6 @@ def get_equipes_by_disciplina():
         id_avaliador = request.args['disciplina']
         return jsonify(equipe_dao.get_all_equipes_by_disciplina(id_avaliador))    
 
-
 @equipe.get('/equipe')
 def get_equipe_by_projet():
     equipe_dao = EquipeDao()
