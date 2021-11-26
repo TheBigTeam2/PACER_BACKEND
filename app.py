@@ -8,7 +8,7 @@ from controllers.CriterioController import criterio
 from controllers.ProjetoController import projeto
 from controllers.DisciplinaController import disciplina
 from controllers.AutenticacaoController import autenticacao
-from controllers.AlunoEquipeController import alunoequipe
+from controllers.LogsController import logs
 
 app = Flask(__name__)
 CORS(app)
@@ -21,6 +21,6 @@ app.register_blueprint(criterio)
 app.register_blueprint(projeto)
 app.register_blueprint(disciplina)
 app.register_blueprint(autenticacao)
-app.register_blueprint(alunoequipe)
+app.register_blueprint(logs)
 
 app.run(port=8085,debug=True)

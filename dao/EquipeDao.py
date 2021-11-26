@@ -25,8 +25,8 @@ class EquipeDao(BaseDao):
     def create_equipe(self,json: dict) -> Equipe:
 
         return Equipe(
-            equ_nome = json["nome"],
-            equ_disciplina = json["disciplina"]
+            equ_nome = json["equ_nome"],
+            equ_disciplina = json["equ_disciplina"]
         )
 
 

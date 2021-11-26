@@ -20,6 +20,19 @@ criterio = Blueprint("criterio",__name__)
 @token_required
 def get_criterios():
     criterio_dao = CriterioDao()
+
+    #Logger MongoDB
+    tokensplit = request.headers['token'].split('.')[1]
+    usu_decoded = json.loads(base64.b64decode(tokensplit + '=' * (-len(tokensplit) % 4)).decode('utf-8'))['user']['usu_id']
+    load_dotenv()
+    logevent = 'CriterioGet'
+    logger = logging.getLogger(logevent)
+    logger.setLevel(logging.DEBUG)
+    logger.addHandler(MongoHandler(host=os.getenv("MONGO_URI"), database_name='PacerLogs', collection='Logs'))
+    message = "O usuario {} buscou todos os Critérios".format(usu_decoded)
+    hashedmessage = hashlib.sha256((message + usu_decoded + logevent + str(datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")) + os.getenv('SECRET')).encode('utf-8')).hexdigest() 
+    logger.info(message, extra={'usuario': usu_decoded,'hash': hashedmessage})
+
     return jsonify(criterio_dao.get_all_criterios())
 
 @criterio.post('/criterio')
@@ -34,15 +47,15 @@ def insert():
 
             #Logger MongoDB
             tokensplit = request.headers['token'].split('.')[1]
-            usu_decoded = json.loads(base64.b64decode(tokensplit + '=' * (-len(tokensplit) % 4)).decode('utf-8'))['user']['usu_nome']
+            usu_decoded = json.loads(base64.b64decode(tokensplit + '=' * (-len(tokensplit) % 4)).decode('utf-8'))['user']['usu_id']
             load_dotenv()
             logevent = 'CriterioPost'
             logger = logging.getLogger(logevent)
             logger.setLevel(logging.DEBUG)
             logger.addHandler(MongoHandler(host=os.getenv("MONGO_URI"), database_name='PacerLogs', collection='Logs'))
             message = "O usuario {} criou um novo Critério: {}".format(usu_decoded, criterio['nome'])
-            hashedmessage = hashlib.sha256((message + usu_decoded + logevent + str(datetime.datetime.utcnow()) + os.getenv('SECRET')).encode('utf-8')).hexdigest() 
-            logger.info(message, extra={'hash': hashedmessage})
+            hashedmessage = hashlib.sha256((message + usu_decoded + logevent + str(datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")) + os.getenv('SECRET')).encode('utf-8')).hexdigest() 
+            logger.info(message, extra={'usuario': usu_decoded,'hash': hashedmessage})
 
             response =  make_response(jsonify({"inserted_content":criterio}),201)
             return response
@@ -63,7 +76,21 @@ def update():
         criterio = criterio_dao.get_criterio_by_id(id_criterio)
 
         if criterio:
+            old_criterio = criterio_dao.convert_entity_to_dict(criterio)
             criterio_dao.update_criterio(id_criterio,criterio_json)
+
+            #Logger MongoDB
+            tokensplit = request.headers['token'].split('.')[1]
+            usu_decoded = json.loads(base64.b64decode(tokensplit + '=' * (-len(tokensplit) % 4)).decode('utf-8'))['user']['usu_id']
+            load_dotenv()
+            logevent = 'CriterioPut'
+            logger = logging.getLogger(logevent)
+            logger.setLevel(logging.DEBUG)
+            logger.addHandler(MongoHandler(host=os.getenv("MONGO_URI"), database_name='PacerLogs', collection='Logs'))
+            message = "O usuario {} modificou o Critério de: {} para {}".format(usu_decoded, old_criterio['cri_nome'], criterio_json['nome'])
+            hashedmessage = hashlib.sha256((message + usu_decoded + logevent + str(datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")) + os.getenv('SECRET')).encode('utf-8')).hexdigest() 
+            logger.info(message, extra={'usuario': usu_decoded,'hash': hashedmessage})
+
             response = make_response(jsonify({"updated_register":id_criterio}),200)
 
         else:
@@ -86,6 +113,19 @@ def delete():
         if criterio:
             resp = criterio_dao.delete_criterio(id_criterio)
             if (resp):
+
+                #Logger MongoDB
+                tokensplit = request.headers['token'].split('.')[1]
+                usu_decoded = json.loads(base64.b64decode(tokensplit + '=' * (-len(tokensplit) % 4)).decode('utf-8'))['user']['usu_id']
+                load_dotenv()
+                logevent = 'CriterioDelete'
+                logger = logging.getLogger(logevent)
+                logger.setLevel(logging.DEBUG)
+                logger.addHandler(MongoHandler(host=os.getenv("MONGO_URI"), database_name='PacerLogs', collection='Logs'))
+                message = "O usuario {} deletou um Critério: {}".format(usu_decoded, criterio_dao.convert_entity_to_dict(criterio)['cri_nome'])
+                hashedmessage = hashlib.sha256((message + usu_decoded + logevent + str(datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")) + os.getenv('SECRET')).encode('utf-8')).hexdigest() 
+                logger.info(message, extra={'usuario': usu_decoded,'hash': hashedmessage})
+
                 response = make_response(jsonify({"deleted_register":id_criterio}),200)
 
             else:

@@ -6,12 +6,36 @@ from services.Auth import AuthService, token_required
 from dao.DisciplinaDao import DisciplinaDao
 from dao.EquipeDao import EquipeDao
 
+#Mongo Variables
+import logging.config
+from log4mongo.handlers import MongoHandler
+import hashlib
+from dotenv import load_dotenv
+import os
+import base64
+import datetime
+import json
+from jsondiff import diff
+
 projeto = Blueprint("projeto",__name__)
 
 @projeto.get('/projetos')
-#@token_required
+@token_required
 def get_projetos():
     projeto_dao = ProjetoDao()
+
+    #Logger MongoDB
+    tokensplit = request.headers['token'].split('.')[1]
+    usu_decoded = json.loads(base64.b64decode(tokensplit + '=' * (-len(tokensplit) % 4)).decode('utf-8'))['user']['usu_id']
+    load_dotenv()
+    logevent = 'ProjetoGet'
+    logger = logging.getLogger(logevent)
+    logger.setLevel(logging.DEBUG)
+    logger.addHandler(MongoHandler(host=os.getenv("MONGO_URI"), database_name='PacerLogs', collection='Logs'))
+    message = "O usuario {} buscou todos os Projetos".format(usu_decoded)
+    hashedmessage = hashlib.sha256((message + usu_decoded + logevent + str(datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")) + os.getenv('SECRET')).encode('utf-8')).hexdigest() 
+    logger.info(message, extra={'usuario': usu_decoded,'hash': hashedmessage})
+
     return jsonify(projeto_dao.get_all_projetos())
 
 @projeto.post('/projeto')
@@ -23,6 +47,19 @@ def insert():
         insertion_result = projeto_dao.save_projeto(projeto)
 
         if insertion_result:
+
+            #Logger MongoDB
+            tokensplit = request.headers['token'].split('.')[1]
+            usu_decoded = json.loads(base64.b64decode(tokensplit + '=' * (-len(tokensplit) % 4)).decode('utf-8'))['user']['usu_id']
+            load_dotenv()
+            logevent = 'ProjetoPost'
+            logger = logging.getLogger(logevent)
+            logger.setLevel(logging.DEBUG)
+            logger.addHandler(MongoHandler(host=os.getenv("MONGO_URI"), database_name='PacerLogs', collection='Logs'))
+            message = "O usuario {} criou um novo Projeto: {}".format(usu_decoded, projeto['pro_tema'])
+            hashedmessage = hashlib.sha256((message + usu_decoded + logevent + str(datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")) + os.getenv('SECRET')).encode('utf-8')).hexdigest() 
+            logger.info(message, extra={'usuario': usu_decoded,'hash': hashedmessage})
+
             response =  make_response(jsonify({"inserted_content":projeto}),201)
             return response
         else:
@@ -30,8 +67,7 @@ def insert():
             return response
 
     except Exception as error:
-        print(error)
-        response = make_response(jsonify({"error":"Entrada duplicada"}),500)
+        response = make_response(jsonify({"error":str(error)}),500)
         return response
     
 @projeto.put('/projeto')
@@ -43,6 +79,35 @@ def update():
         projeto = projeto_dao.get_projeto_by_id(id_projeto)
 
         if projeto:
+            
+            #Logger MongoDB
+            old_projeto = projeto_dao.convert_entity_to_dict(projeto)
+            projetos_diff = diff(old_projeto, projeto_json)
+            if projetos_diff:
+                tokensplit = request.headers['token'].split('.')[1]
+                usu_decoded = json.loads(base64.b64decode(tokensplit + '=' * (-len(tokensplit) % 4)).decode('utf-8'))['user']['usu_id']
+                load_dotenv()
+                logevent = 'ProjetoPut'
+                logger = logging.getLogger(logevent)
+                logger.setLevel(logging.DEBUG)
+                logger.addHandler(MongoHandler(host=os.getenv("MONGO_URI"), database_name='PacerLogs', collection='Logs'))
+                message = "O usuario {} modificou os seguintes campos do Projeto {}:".format(usu_decoded, old_projeto['pro_tema'])
+                if projetos_diff:
+                    for key in projetos_diff.keys(): 
+                        if isinstance(key, str) and isinstance(old_projeto[key], list):
+                            for i in range(0, len(old_projeto[key])):
+                                subprojetos_diff = diff(old_projeto[key][i], projeto_json[key][i])
+                                for subkey in subprojetos_diff.keys():
+                                    if isinstance(subkey, str):
+                                        troca = ' Campo: ' + subkey + ' Em: ' + str(key) + ' De: ' + str(old_projeto[key][i][subkey]) + ' Para: ' + str(projeto_json[key][i][subkey])
+                                        message += troca
+                        else:
+                            if isinstance(key, str):
+                                troca = ' Campo: ' + key + ' De: ' + str(old_projeto[key]) + ' Para: ' + str(projeto_json[key])
+                                message += troca
+                hashedmessage = hashlib.sha256((message + usu_decoded + logevent + str(datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")) + os.getenv('SECRET')).encode('utf-8')).hexdigest() 
+                logger.info(message, extra={'usuario': usu_decoded,'hash': hashedmessage})
+
             projeto_dao.update_projeto(id_projeto,projeto_json)
             response = make_response(jsonify({"updated_register":id_projeto}),200)
 
@@ -66,6 +131,19 @@ def delete():
         if projeto:
             resp = projeto_dao.delete_projeto(id_projeto)
             if (resp):
+
+                #Logger MongoDB
+                tokensplit = request.headers['token'].split('.')[1]
+                usu_decoded = json.loads(base64.b64decode(tokensplit + '=' * (-len(tokensplit) % 4)).decode('utf-8'))['user']['usu_id']
+                load_dotenv()
+                logevent = 'ProjetoDelete'
+                logger = logging.getLogger(logevent)
+                logger.setLevel(logging.DEBUG)
+                logger.addHandler(MongoHandler(host=os.getenv("MONGO_URI"), database_name='PacerLogs', collection='Logs'))
+                message = "O usuario {} deletou um Projeto: {}".format(usu_decoded, projeto_dao.convert_entity_to_dict(projeto)['pro_tema'])
+                hashedmessage = hashlib.sha256((message + usu_decoded + logevent + str(datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")) + os.getenv('SECRET')).encode('utf-8')).hexdigest() 
+                logger.info(message, extra={'usuario': usu_decoded,'hash': hashedmessage})
+
                 response = make_response(jsonify({"deleted_register":id_projeto}),200)
 
             else:

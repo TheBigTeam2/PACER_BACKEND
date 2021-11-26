@@ -47,6 +47,7 @@ class AvaliacaoDao(BaseDao):
 
         projeto_dao = ProjetoDao()
 
+        
         for avaliacao in avaliacoes:
             projeto = projeto_dao.get_projeto_by_id(avaliacao.get('ava_projeto'))
             self._handle_equipes_in_projeto(projeto.equipes, avaliacao)

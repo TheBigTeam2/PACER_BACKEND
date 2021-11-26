@@ -12,9 +12,9 @@ class ProjetoDao(BaseDao):
         return {
             "pro_id":entity.pro_id,
             "pro_tema":entity.pro_tema,
-            "pro_inicio":entity.pro_inicio,
-            "pro_termino":entity.pro_termino,
-            "pro_disciplinas": [disciplina_dao.convert_entity_to_dict(disciplina) for disciplina in entity.disciplinas]
+            "pro_inicio":str(entity.pro_inicio),
+            "pro_termino":str(entity.pro_termino),
+            "disciplinas": [disciplina_dao.convert_entity_to_dict(disciplina) for disciplina in entity.disciplinas]
         }
 
     def create_projeto(self,json: dict) -> Projeto:
@@ -43,7 +43,7 @@ class ProjetoDao(BaseDao):
     def get_projeto_by_id(self, id_projeto: int) -> Projeto:
 
         projeto = self.session.query(Projeto).get(id_projeto)
-
+        print(self.convert_entity_to_dict(projeto))
         return projeto
     
     def update_projeto(self,projeto_to_be_updated: int, projeto_info_json: dict) -> None:
