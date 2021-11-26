@@ -124,4 +124,29 @@ class AvaliacaoDao(BaseDao):
             return [first, second]
 
 
+    def create_avaliacao_professor(self, json) -> Avaliacao:
+        avaliacao_aux = self.session.query(Avaliacao).filter(Avaliacao.ava_sprint == json["sprint"], Avaliacao.ava_projeto == json["projeto"]).one()
 
+        return Avaliacao(
+            ava_projeto = json["projeto"],
+            ava_sprint = json["sprint"],
+            ava_avaliado = json["aluno"],
+            ava_avaliador = json["professor"],
+            ava_inicio = avaliacao_aux.ava_inicio,
+            ava_termino = avaliacao_aux.ava_termino
+        )
+
+
+    def save_avaliacao_professor(self, json) -> Avaliacao:
+        avaliacao = self.create_avaliacao_professor(json)
+        self.save_entity_with_commit(avaliacao)
+        
+        avaliacao = self.session.query(Avaliacao).order_by(Avaliacao.ava_id.desc()).first()
+      
+        for nota in json["notas"]:
+            nota["avaliacao"] = avaliacao.ava_id
+
+        nota_dao = NotaDao()
+        nota_dao.save_notas_in_mass(json["notas"])
+
+        return 

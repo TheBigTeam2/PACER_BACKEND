@@ -27,3 +27,16 @@ def post_avaliacao():
         return make_response(jsonify({"error":str(error)}),500)
     
 
+@avaliacao.post('/avaliacao_prof')    
+def post_avaliacao_prof():
+    avaliacao_dao = AvaliacaoDao()
+    json = request.get_json()
+
+    try:
+        avaliacao_dao.save_avaliacao_professor(json)
+
+        response =  make_response(jsonify({"inserted_content":json}),201)
+        return response
+
+    except Exception as error:
+        return make_response(jsonify({"error":str(error)}),500)    
