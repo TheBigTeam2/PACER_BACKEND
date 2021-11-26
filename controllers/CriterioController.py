@@ -11,6 +11,7 @@ from dotenv import load_dotenv
 import os
 import base64
 import datetime
+import json
 
 
 criterio = Blueprint("criterio",__name__)
@@ -32,15 +33,15 @@ def insert():
         if insertion_result:
 
             #Logger MongoDB
-            usu_decoded = base64.b64decode(request.headers['token']).decode('utf-8')
+            tokensplit = request.headers['token'].split('.')[1]
+            usu_decoded = json.loads(base64.b64decode(tokensplit + '=' * (-len(tokensplit) % 4)).decode('utf-8'))['user']['usu_nome']
             load_dotenv()
             logevent = 'CriterioPost'
             logger = logging.getLogger(logevent)
             logger.setLevel(logging.DEBUG)
             logger.addHandler(MongoHandler(host=os.getenv("MONGO_URI"), database_name='PacerLogs', collection='Logs'))
             message = "O usuario {} criou um novo Critério: {}".format(usu_decoded, criterio['nome'])
-            print(datetime.datetime.utcnow())
-            hashedmessage = hashlib.sha256((message + usu_decoded + logevent + os.getenv('SECRET')).encode('utf-8')).hexdigest() 
+            hashedmessage = hashlib.sha256((message + usu_decoded + logevent + str(datetime.datetime.utcnow()) + os.getenv('SECRET')).encode('utf-8')).hexdigest() 
             logger.info(message, extra={'hash': hashedmessage})
 
             response =  make_response(jsonify({"inserted_content":criterio}),201)
