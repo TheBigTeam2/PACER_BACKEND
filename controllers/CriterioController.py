@@ -3,6 +3,16 @@ from dao.CriterioDao import CriterioDao
 from flask import request, jsonify, make_response
 from services.Auth import AuthService, token_required 
 
+#Mongo Variables
+import logging.config
+from log4mongo.handlers import MongoHandler
+import hashlib
+from dotenv import load_dotenv
+import os
+import base64
+import datetime
+
+
 criterio = Blueprint("criterio",__name__)
 
 @criterio.get('/criterios')
@@ -20,6 +30,19 @@ def insert():
         insertion_result = criterio_dao.save_criterio(criterio)
 
         if insertion_result:
+
+            #Logger MongoDB
+            usu_decoded = base64.b64decode(request.headers['token']).decode('utf-8')
+            load_dotenv()
+            logevent = 'CriterioPost'
+            logger = logging.getLogger(logevent)
+            logger.setLevel(logging.DEBUG)
+            logger.addHandler(MongoHandler(host=os.getenv("MONGO_URI"), database_name='PacerLogs', collection='Logs'))
+            message = "O usuario {} criou um novo Critério: {}".format(usu_decoded, criterio['nome'])
+            print(datetime.datetime.utcnow())
+            hashedmessage = hashlib.sha256((message + usu_decoded + logevent + os.getenv('SECRET')).encode('utf-8')).hexdigest() 
+            logger.info(message, extra={'hash': hashedmessage})
+
             response =  make_response(jsonify({"inserted_content":criterio}),201)
             return response
         else:
@@ -27,7 +50,7 @@ def insert():
             return response
 
     except Exception as error:
-        response = make_response(jsonify({"error":"Entrada duplicada"}),500)
+        response = make_response(jsonify({"error":str(error)}),500)
         return response
     
 @criterio.put('/criterio')
