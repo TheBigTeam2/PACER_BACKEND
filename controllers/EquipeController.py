@@ -79,7 +79,7 @@ def insert():
             logger = logging.getLogger(logevent)
             logger.setLevel(logging.DEBUG)
             logger.addHandler(MongoHandler(host=os.getenv("MONGO_URI"), database_name='PacerLogs', collection='Logs'))
-            message = "O usuario {} criou uma nova Equipe: {}".format(usu_decoded, equipe['nome'])
+            message = "O usuario {} criou uma nova Equipe: {}".format(usu_decoded, equipe['equ_nome'])
             hashedmessage = hashlib.sha256((message + usu_decoded + logevent + str(datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")) + os.getenv('SECRET')).encode('utf-8')).hexdigest() 
             logger.info(message, extra={'usuario': usu_decoded,'hash': hashedmessage})
 
