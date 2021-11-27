@@ -23,7 +23,6 @@ usuario = Blueprint("usuario",__name__)
 def get_alunos():
     usuario_dao = UsuarioDao()
 
-    '''
     #Logger MongoDB
     tokensplit = request.headers['token'].split('.')[1]
     usu_decoded = json.loads(base64.b64decode(tokensplit + '=' * (-len(tokensplit) % 4)).decode('utf-8'))['user']['usu_id']
@@ -35,7 +34,6 @@ def get_alunos():
     message = "O usuario {} buscou todos os Alunos".format(usu_decoded)
     hashedmessage = hashlib.sha256((message + usu_decoded + logevent + str(datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")) + os.getenv('SECRET')).encode('utf-8')).hexdigest() 
     logger.info(message, extra={'usuario': usu_decoded,'hash': hashedmessage})
-    '''
 
     return jsonify(usuario_dao.get_all_usuarios_by_aluno())
 
@@ -43,7 +41,6 @@ def get_alunos():
 def get_professores():
     usuario_dao = UsuarioDao()
 
-    '''
     #Logger MongoDB
     tokensplit = request.headers['token'].split('.')[1]
     usu_decoded = json.loads(base64.b64decode(tokensplit + '=' * (-len(tokensplit) % 4)).decode('utf-8'))['user']['usu_id']
@@ -55,7 +52,6 @@ def get_professores():
     message = "O usuario {} buscou todos os Professores".format(usu_decoded)
     hashedmessage = hashlib.sha256((message + usu_decoded + logevent + str(datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")) + os.getenv('SECRET')).encode('utf-8')).hexdigest() 
     logger.info(message, extra={'usuario': usu_decoded,'hash': hashedmessage})
-    '''
 
     return jsonify(usuario_dao.get_all_usuarios_by_professor())
 
@@ -69,7 +65,6 @@ def insert():
         insertion_result = usuario_dao.save_usuario(usuario)
         if insertion_result:
 
-            '''
             #Logger MongoDB
             tokensplit = request.headers['token'].split('.')[1]
             usu_decoded = json.loads(base64.b64decode(tokensplit + '=' * (-len(tokensplit) % 4)).decode('utf-8'))['user']['usu_id']
@@ -78,10 +73,9 @@ def insert():
             logger = logging.getLogger(logevent)
             logger.setLevel(logging.DEBUG)
             logger.addHandler(MongoHandler(host=os.getenv("MONGO_URI"), database_name='PacerLogs', collection='Logs'))
-            message = "O usuario {} criou um novo Usuario: {}".format(usu_decoded, usuario['usu_id'])
+            message = "O usuario {} criou um novo Usuario".format(usu_decoded)
             hashedmessage = hashlib.sha256((message + usu_decoded + logevent + str(datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")) + os.getenv('SECRET')).encode('utf-8')).hexdigest() 
             logger.info(message, extra={'usuario': usu_decoded,'hash': hashedmessage})
-            '''
 
             response =  make_response(jsonify({"inserted_content":usuario}),201)
             return response
@@ -130,7 +124,6 @@ def update():
         usuario = usuario_dao.get_entity_by_id(id_usuario,Usuario)
         if usuario:
 
-            '''
             #Logger MongoDB
             old_usuario = usuario_dao.convert_entity_to_dict(usuario)
             usuarios_diff = diff(old_usuario, usuario_json)
@@ -142,23 +135,9 @@ def update():
                 logger = logging.getLogger(logevent)
                 logger.setLevel(logging.DEBUG)
                 logger.addHandler(MongoHandler(host=os.getenv("MONGO_URI"), database_name='PacerLogs', collection='Logs'))
-                message = "O usuario {} modificou os seguintes campos do Usuario {}:".format(usu_decoded, old_usuario['usu_id'])
-                if usuarios_diff:
-                    for key in usuarios_diff.keys(): 
-                        if isinstance(key, str) and isinstance(old_usuario[key], list):
-                            for i in range(0, len(old_usuario[key])):
-                                subusuarios_diff = diff(old_usuario[key][i], usuario_json[key][i])
-                                for subkey in subusuarios_diff.keys():
-                                    if isinstance(subkey, str):
-                                        troca = ' Campo: ' + subkey + ' Em: ' + str(key) + ' De: ' + str(old_usuario[key][i][subkey]) + ' Para: ' + str(usuario_json[key][i][subkey])
-                                        message += troca
-                        else:
-                            if isinstance(key, str):
-                                troca = ' Campo: ' + key + ' De: ' + str(old_usuario[key]) + ' Para: ' + str(usuario_json[key])
-                                message += troca
+                message = "O usuario {} modificou o seguinte Usuario: {}".format(usu_decoded, old_usuario['usu_id'])
                 hashedmessage = hashlib.sha256((message + usu_decoded + logevent + str(datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")) + os.getenv('SECRET')).encode('utf-8')).hexdigest() 
                 logger.info(message, extra={'usuario': usu_decoded,'hash': hashedmessage})
-            '''
 
             usuario_dao.update_usuario(id_usuario,usuario_json)
             response = make_response(jsonify({"updated_register":id_usuario}),200)
@@ -181,7 +160,6 @@ def delete():
         if id_usuario:
             usuario_dao.delete_usuario(usuario)
 
-            '''
             #Logger MongoDB
             tokensplit = request.headers['token'].split('.')[1]
             usu_decoded = json.loads(base64.b64decode(tokensplit + '=' * (-len(tokensplit) % 4)).decode('utf-8'))['user']['usu_id']
@@ -190,10 +168,9 @@ def delete():
             logger = logging.getLogger(logevent)
             logger.setLevel(logging.DEBUG)
             logger.addHandler(MongoHandler(host=os.getenv("MONGO_URI"), database_name='PacerLogs', collection='Logs'))
-            message = "O usuario {} deletou um Usuario: {}".format(usu_decoded, usuario_dao.convert_entity_to_dict(usuario)['usu_id'])
+            message = "O usuario {} deletou o Usuario: {}".format(usu_decoded, usuario_dao.convert_entity_to_dict(usuario)['usu_id'])
             hashedmessage = hashlib.sha256((message + usu_decoded + logevent + str(datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")) + os.getenv('SECRET')).encode('utf-8')).hexdigest() 
             logger.info(message, extra={'usuario': usu_decoded,'hash': hashedmessage})
-            '''
 
             response = make_response(jsonify({"deleted_register":id_usuario}),200)
 
@@ -204,3 +181,17 @@ def delete():
         response = make_response(jsonify({"error":"id argument empty"}),500)
 
     return response
+
+@usuario.get('/report/general')
+def report():
+    usuario_dao = UsuarioDao()
+
+    if request.args.get("id_projeto") and request.args.get("id_aluno"):
+
+        report = usuario_dao.generate_radar_chart_report(request.args["id_projeto"],request.args["id_aluno"])
+
+        return make_response(jsonify(report),200)
+
+    else:
+
+        return make_response(jsonify({"error":"Missing arguments"}),500)
