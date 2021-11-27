@@ -181,3 +181,17 @@ def delete():
         response = make_response(jsonify({"error":"id argument empty"}),500)
 
     return response
+
+@usuario.get('/report/general')
+def report():
+    usuario_dao = UsuarioDao()
+
+    if request.args.get("id_projeto") and request.args.get("id_aluno"):
+
+        report = usuario_dao.generate_radar_chart_report(request.args["id_projeto"],request.args["id_aluno"])
+
+        return make_response(jsonify(report),200)
+
+    else:
+
+        return make_response(jsonify({"error":"Missing arguments"}),500)
