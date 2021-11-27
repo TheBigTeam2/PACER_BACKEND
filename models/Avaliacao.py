@@ -24,8 +24,8 @@ class Avaliacao(Base):
     ava_avaliador = Column(Integer, ForeignKey(Usuario.usu_id))
     ava_projeto = Column(Integer,ForeignKey(Projeto.pro_id))
 
-    avaliado = relationship("Usuario", foreign_keys=ava_avaliado,lazy=True)
-    avaliador = relationship("Usuario", foreign_keys=ava_avaliador,lazy=True)
+    avaliado = relationship("Usuario", foreign_keys=ava_avaliado)
+    avaliador = relationship("Usuario", foreign_keys=ava_avaliador)
     projeto = relationship("Projeto", foreign_keys=ava_projeto, backref="avaliacoes",lazy=True)
     notas = relationship("Nota",back_populates="avaliacao",lazy=True)
 
