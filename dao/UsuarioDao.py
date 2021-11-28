@@ -97,6 +97,14 @@ class UsuarioDao(BaseDao):
         professores = [self.convert_entity_to_dict(professor) for professor in professores]
 
         return professores
+    
+    def get_usuario_by_rg(self, rg_usuario: str) -> Usuario:
+
+        usuario = self.session.query(Usuario).filter(Usuario.usu_rg == rg_usuario).one()
+
+        usuario = self.convert_entity_to_dict(usuario)
+        
+        return usuario
 
     def update_usuario(self, usuario_to_be_updated: int, usuario_info_json: dict):
 

@@ -2,6 +2,16 @@ from werkzeug.wrappers import response
 from services.Auth import AuthService
 from flask import Blueprint, request, make_response, jsonify
 
+#Mongo Variables
+import logging.config
+from log4mongo.handlers import MongoHandler
+import hashlib
+from dotenv import load_dotenv
+import os
+import base64
+import datetime
+import json
+
 autenticacao = Blueprint("autenticacao",__name__)
 
 @autenticacao.post('/login')
@@ -24,6 +34,17 @@ def login():
         token = auth.authenticate(body)
 
         if token:
+
+            #Logger MongoDB
+            usu_decoded = str(token['usu_id'])
+            load_dotenv()
+            logevent = 'Login'
+            logger = logging.getLogger(logevent)
+            logger.setLevel(logging.DEBUG)
+            logger.addHandler(MongoHandler(host=os.getenv("MONGO_URI"), database_name='PacerLogs', collection='Logs'))
+            message = "O usuario {} fez Login".format(usu_decoded)
+            hashedmessage = hashlib.sha256((message + usu_decoded + logevent + str(datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")) + os.getenv('SECRET')).encode('utf-8')).hexdigest() 
+            logger.info(message, extra={'usuario': usu_decoded,'hash': hashedmessage})
 
             return make_response(jsonify({"authenticated":True,"authentication":token}),200)
 

@@ -23,6 +23,7 @@ usuario = Blueprint("usuario",__name__)
 def get_alunos():
     usuario_dao = UsuarioDao()
 
+    '''
     #Logger MongoDB
     tokensplit = request.headers['token'].split('.')[1]
     usu_decoded = json.loads(base64.b64decode(tokensplit + '=' * (-len(tokensplit) % 4)).decode('utf-8'))['user']['usu_id']
@@ -34,6 +35,7 @@ def get_alunos():
     message = "O usuario {} buscou todos os Alunos".format(usu_decoded)
     hashedmessage = hashlib.sha256((message + usu_decoded + logevent + str(datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")) + os.getenv('SECRET')).encode('utf-8')).hexdigest() 
     logger.info(message, extra={'usuario': usu_decoded,'hash': hashedmessage})
+    '''
 
     return jsonify(usuario_dao.get_all_usuarios_by_aluno())
 
@@ -41,6 +43,7 @@ def get_alunos():
 def get_professores():
     usuario_dao = UsuarioDao()
 
+    '''
     #Logger MongoDB
     tokensplit = request.headers['token'].split('.')[1]
     usu_decoded = json.loads(base64.b64decode(tokensplit + '=' * (-len(tokensplit) % 4)).decode('utf-8'))['user']['usu_id']
@@ -52,6 +55,7 @@ def get_professores():
     message = "O usuario {} buscou todos os Professores".format(usu_decoded)
     hashedmessage = hashlib.sha256((message + usu_decoded + logevent + str(datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")) + os.getenv('SECRET')).encode('utf-8')).hexdigest() 
     logger.info(message, extra={'usuario': usu_decoded,'hash': hashedmessage})
+    '''
 
     return jsonify(usuario_dao.get_all_usuarios_by_professor())
 
@@ -73,7 +77,8 @@ def insert():
             logger = logging.getLogger(logevent)
             logger.setLevel(logging.DEBUG)
             logger.addHandler(MongoHandler(host=os.getenv("MONGO_URI"), database_name='PacerLogs', collection='Logs'))
-            message = "O usuario {} criou um novo Usuario".format(usu_decoded)
+            usu_inserted = usuario_dao.get_usuario_by_rg(usuario['usu_rg'])
+            message = "O usuario {} criou um novo Usuario: {}".format(usu_decoded, usu_inserted['usu_id'])
             hashedmessage = hashlib.sha256((message + usu_decoded + logevent + str(datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")) + os.getenv('SECRET')).encode('utf-8')).hexdigest() 
             logger.info(message, extra={'usuario': usu_decoded,'hash': hashedmessage})
 
@@ -103,6 +108,18 @@ def insert_in_mass():
         insertion_result = usuario_dao.save_usuarios_in_mass(usuarios_csv)
 
         if insertion_result:
+            
+            #Logger MongoDB
+            tokensplit = request.headers['token'].split('.')[1]
+            usu_decoded = json.loads(base64.b64decode(tokensplit + '=' * (-len(tokensplit) % 4)).decode('utf-8'))['user']['usu_id']
+            load_dotenv()
+            logevent = 'UsuarioPostInMass'
+            logger = logging.getLogger(logevent)
+            logger.setLevel(logging.DEBUG)
+            logger.addHandler(MongoHandler(host=os.getenv("MONGO_URI"), database_name='PacerLogs', collection='Logs'))
+            message = "O usuario {} criou {} novos Usuarios".format(usu_decoded, len(usuarios_csv))
+            hashedmessage = hashlib.sha256((message + usu_decoded + logevent + str(datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")) + os.getenv('SECRET')).encode('utf-8')).hexdigest() 
+            logger.info(message, extra={'usuario': usu_decoded,'hash': hashedmessage})
 
             response =  make_response(jsonify({"inserted_content":usuarios_csv}),201)
             return response

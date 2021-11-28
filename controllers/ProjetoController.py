@@ -24,6 +24,7 @@ projeto = Blueprint("projeto",__name__)
 def get_projetos():
     projeto_dao = ProjetoDao()
 
+    '''
     #Logger MongoDB
     tokensplit = request.headers['token'].split('.')[1]
     usu_decoded = json.loads(base64.b64decode(tokensplit + '=' * (-len(tokensplit) % 4)).decode('utf-8'))['user']['usu_id']
@@ -35,6 +36,7 @@ def get_projetos():
     message = "O usuario {} buscou todos os Projetos".format(usu_decoded)
     hashedmessage = hashlib.sha256((message + usu_decoded + logevent + str(datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")) + os.getenv('SECRET')).encode('utf-8')).hexdigest() 
     logger.info(message, extra={'usuario': usu_decoded,'hash': hashedmessage})
+    '''
 
     return jsonify(projeto_dao.get_all_projetos())
 
@@ -225,4 +227,4 @@ def buscar_sprints_do_projeto():
         sprints = projeto_dao.buscar_sprints_do_projeto(request.args.get('projeto'))
         return make_response(jsonify(sprints), 200)
     else:
-        return make_response(jsonify({'mensagem': 'É necessário passar o projeto!'}), 422)
+        return make_response(jsonify({'mensagem': 'É necessário passar o projeto!'}), 422) 

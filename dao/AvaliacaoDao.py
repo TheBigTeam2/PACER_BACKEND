@@ -59,7 +59,6 @@ class AvaliacaoDao(BaseDao):
         for equipe in equipes:
             alunos_in_equipe = equipe.alunos
             random.shuffle(equipe.alunos)
-            print(alunos_in_equipe)
             for index in range(len(alunos_in_equipe)):
                 self_avaliation = self.create_avaliacao({
                     "ava_sprint":avaliacao.get('ava_sprint'),

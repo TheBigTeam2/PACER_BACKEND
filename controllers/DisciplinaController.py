@@ -21,6 +21,7 @@ disciplina = Blueprint("disciplina",__name__)
 def get_disciplinas():
     disciplina_dao = DisciplinaDao()
 
+    '''
     #Logger MongoDB
     tokensplit = request.headers['token'].split('.')[1]
     usu_decoded = json.loads(base64.b64decode(tokensplit + '=' * (-len(tokensplit) % 4)).decode('utf-8'))['user']['usu_id']
@@ -32,6 +33,7 @@ def get_disciplinas():
     message = "O usuario {} buscou todas as Disciplinas".format(usu_decoded)
     hashedmessage = hashlib.sha256((message + usu_decoded + logevent + str(datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")) + os.getenv('SECRET')).encode('utf-8')).hexdigest() 
     logger.info(message, extra={'usuario': usu_decoded,'hash': hashedmessage})
+    '''
 
     return jsonify(disciplina_dao.get_all_disciplinas())
 

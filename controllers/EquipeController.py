@@ -30,6 +30,7 @@ def get_equipes_by_disciplina_or_projeto():
     if request.args.get('disciplina'):
         id_avaliador = request.args['disciplina']
 
+        '''
         #Logger MongoDB
         tokensplit = request.headers['token'].split('.')[1]
         usu_decoded = json.loads(base64.b64decode(tokensplit + '=' * (-len(tokensplit) % 4)).decode('utf-8'))['user']['usu_id']
@@ -41,12 +42,14 @@ def get_equipes_by_disciplina_or_projeto():
         message = "O usuario {} buscou todas as Equipes que participam da Disciplina: {}".format(usu_decoded, id_avaliador)
         hashedmessage = hashlib.sha256((message + usu_decoded + logevent + str(datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")) + os.getenv('SECRET')).encode('utf-8')).hexdigest() 
         logger.info(message, extra={'usuario': usu_decoded,'hash': hashedmessage})
+        '''
 
-        return jsonify(equipe_dao.get_all_equipes_by_disciplina(id_avaliador))    
+        return jsonify(equipe_dao.get_all_equipes_by_disciplina(id_avaliador))
 
     elif request.args.get('projeto'):
         id_projeto = int(request.args['projeto'])
 
+        '''
         #Logger MongoDB
         tokensplit = request.headers['token'].split('.')[1]
         usu_decoded = json.loads(base64.b64decode(tokensplit + '=' * (-len(tokensplit) % 4)).decode('utf-8'))['user']['usu_id']
@@ -58,6 +61,7 @@ def get_equipes_by_disciplina_or_projeto():
         message = "O usuario {} buscou todas as Equipes que participam do Projeto: {}".format(usu_decoded, id_projeto)
         hashedmessage = hashlib.sha256((message + usu_decoded + logevent + str(datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")) + os.getenv('SECRET')).encode('utf-8')).hexdigest() 
         logger.info(message, extra={'usuario': usu_decoded,'hash': hashedmessage})
+        '''
 
         return jsonify(equipe_dao.get_all_equipes_by_projeto(id_projeto))
 
@@ -194,6 +198,7 @@ def equipe_by_aluno():
     if request.args['aluno']:
         aluno = request.args['aluno']
 
+        '''
         #Logger MongoDB
         tokensplit = request.headers['token'].split('.')[1]
         usu_decoded = json.loads(base64.b64decode(tokensplit + '=' * (-len(tokensplit) % 4)).decode('utf-8'))['user']['usu_id']
@@ -205,5 +210,6 @@ def equipe_by_aluno():
         message = "O usuario {} buscou todas as Equipes que possuem o Aluno: {}".format(usu_decoded, aluno)
         hashedmessage = hashlib.sha256((message + usu_decoded + logevent + str(datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")) + os.getenv('SECRET')).encode('utf-8')).hexdigest() 
         logger.info(message, extra={'usuario': usu_decoded,'hash': hashedmessage})
+        '''
 
         return jsonify(equipe_dao.get_equipes_by_aluno(aluno))
