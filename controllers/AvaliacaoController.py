@@ -82,7 +82,7 @@ def post_avaliacao():
 @token_required
 def post_avaliacao_prof():
     avaliacao_dao = AvaliacaoDao()
-    json = request.get_json()
+    jsonV = request.get_json()
 
     #Logger Setup
     tokensplit = request.headers['token'].split('.')[1]
@@ -90,18 +90,18 @@ def post_avaliacao_prof():
     load_dotenv()
 
     try:
-        avaliacao_dao.save_avaliacao_professor(json)
+        avaliacao_dao.save_avaliacao_professor(jsonV)
 
         #Logger MongoDB
         logevent = 'AvaliaçãoPostProfessor'
         logger = logging.getLogger(logevent)
         logger.setLevel(logging.DEBUG)
         logger.addHandler(MongoHandler(host=os.getenv("MONGO_URI"), database_name='PacerLogs', collection='Logs'))
-        message = "O professor {} avaliou o aluno: {}".format(usu_decoded, json['aluno'])
+        message = "O professor {} avaliou o aluno: {}".format(usu_decoded, jsonV['aluno'])
         hashedmessage = hashlib.sha256((message + usu_decoded + logevent + str(datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")) + os.getenv('SECRET')).encode('utf-8')).hexdigest() 
         logger.info(message, extra={'usuario': usu_decoded,'hash': hashedmessage})
 
-        response =  make_response(jsonify({"inserted_content":json}),201)
+        response =  make_response(jsonify({"inserted_content":jsonV}),201)
         return response
 
     except Exception as error:
