@@ -217,3 +217,12 @@ def remover_projeto_equipe():
         else:
             response = make_response(jsonify({"Removed_content":json}), 200)
         return response
+
+@projeto.get('/buscar_sprints_do_projeto')
+def buscar_sprints_do_projeto():
+    projeto_dao = ProjetoDao()
+    if request.args.get('projeto'):
+        sprints = projeto_dao.buscar_sprints_do_projeto(request.args.get('projeto'))
+        return make_response(jsonify(sprints), 200)
+    else:
+        return make_response(jsonify({'mensagem': 'É necessário passar o projeto!'}), 422)

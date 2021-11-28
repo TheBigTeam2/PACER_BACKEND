@@ -126,7 +126,7 @@ class AvaliacaoDao(BaseDao):
 
 
     def create_avaliacao_professor(self, json) -> Avaliacao:
-        avaliacao_aux = self.session.query(Avaliacao).filter(Avaliacao.ava_sprint == json["sprint"], Avaliacao.ava_projeto == json["projeto"]).one()
+        avaliacao_aux = self.session.query(Avaliacao).filter(Avaliacao.ava_sprint == json["sprint"], Avaliacao.ava_projeto == json["projeto"]).first()
 
         return Avaliacao(
             ava_projeto = json["projeto"],

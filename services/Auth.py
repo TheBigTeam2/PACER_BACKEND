@@ -27,7 +27,8 @@ def token_required(f):
        is_auth = auth.get_role(token,roles)
        
        if is_auth or not roles:
-        return f()
+           print(f)
+           return f()
 
        return  {"error":"Invalid role"} 
 

@@ -175,11 +175,11 @@ class UsuarioDao(BaseDao):
                             row['criterio']:row['nota']
                         })
 
-                elif row['cargo'] == 'Professor':
+                elif row['cargo'] == 'Professor' or row['cargo'] == 'Administrador':
 
                     sprint_info["professores"].append({
-                            row['criterio']:row['nota']
-                        })            
+                        row['criterio']:row['nota']
+                    })
 
             sprints_grouping.append(sprint_info)
         
@@ -203,7 +203,7 @@ class UsuarioDao(BaseDao):
 
             averages_criterios.append({
                 "criterio":criterio,
-                "nota": soma / criterios_appear.get(criterio,1)
+                "nota": soma / (criterios_appear.get(criterio,1) if criterios_appear.get(criterio,1) else 1)
             })
 
         return averages_criterios
@@ -239,7 +239,7 @@ class UsuarioDao(BaseDao):
                 "nota": (
                     (criterios_soma_aluno[criterio]/(criterios_appear_aluno[criterio] if criterios_appear_aluno[criterio] != 0 else 1)) +
                     (criterios_soma_professor[criterio]/(criterios_appear_professor[criterio] if criterios_appear_professor[criterio] != 0 else 1))
-                    )/2
+                )/2 if criterios_appear_professor[criterio] > 0 else (criterios_soma_aluno[criterio]/(criterios_appear_aluno[criterio] if criterios_appear_aluno[criterio] != 0 else 1))
             })
 
         return averages_criterios

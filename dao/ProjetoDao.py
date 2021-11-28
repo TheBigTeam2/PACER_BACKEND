@@ -122,3 +122,10 @@ class ProjetoDao(BaseDao):
                 return 404
         else:
             return 404
+
+    def buscar_sprints_do_projeto(self, projeto):
+        from models.Avaliacao import Avaliacao
+        sprints = []
+        for row in self.session.query(Avaliacao.ava_sprint).distinct(Avaliacao.ava_sprint).filter(Avaliacao.ava_projeto == projeto).all():
+            sprints.append(row[0])
+        return sprints
