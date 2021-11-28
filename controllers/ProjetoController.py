@@ -41,9 +41,15 @@ def get_projetos():
     return jsonify(projeto_dao.get_all_projetos())
 
 @projeto.post('/projeto')
+@token_required
 def insert():
     projeto_dao = ProjetoDao()
     projeto = request.get_json()
+
+    #Logger Setup
+    tokensplit = request.headers['token'].split('.')[1]
+    usu_decoded = json.loads(base64.b64decode(tokensplit + '=' * (-len(tokensplit) % 4)).decode('utf-8'))['user']['usu_id']
+    load_dotenv()
 
     try:
         insertion_result = projeto_dao.save_projeto(projeto)
@@ -51,9 +57,6 @@ def insert():
         if insertion_result:
 
             #Logger MongoDB
-            tokensplit = request.headers['token'].split('.')[1]
-            usu_decoded = json.loads(base64.b64decode(tokensplit + '=' * (-len(tokensplit) % 4)).decode('utf-8'))['user']['usu_id']
-            load_dotenv()
             logevent = 'ProjetoPost'
             logger = logging.getLogger(logevent)
             logger.setLevel(logging.DEBUG)
@@ -69,10 +72,21 @@ def insert():
             return response
 
     except Exception as error:
+
+        #Logger MongoDB Error 
+        logevent = 'ERROR'
+        logger = logging.getLogger(logevent)
+        logger.setLevel(logging.DEBUG)
+        logger.addHandler(MongoHandler(host=os.getenv("MONGO_URI"), database_name='PacerLogs', collection='Logs'))
+        message = "O usuario {} gerou um erro: {}".format(usu_decoded, str(error))
+        hashedmessage = hashlib.sha256((message + usu_decoded + logevent + str(datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")) + os.getenv('SECRET')).encode('utf-8')).hexdigest() 
+        logger.critical(message, extra={'usuario': usu_decoded,'hash': hashedmessage})
+
         response = make_response(jsonify({"error":str(error)}),500)
         return response
     
 @projeto.put('/projeto')
+@token_required
 def update():
     projeto_dao = ProjetoDao()
     if request.args['id']:
@@ -122,6 +136,7 @@ def update():
     return response
 
 @projeto.delete('/projeto')
+@token_required
 def delete():
     projeto_dao = ProjetoDao()
 
@@ -160,6 +175,7 @@ def delete():
 ## RELACIONANDO PROJETOS E EQUIPES
 
 @projeto.get('/projeto_equipe')
+@token_required
 def buscar_projetos_da_equipe():
     projeto_dao = ProjetoDao()
     equipe = request.args['equipe']
@@ -168,6 +184,7 @@ def buscar_projetos_da_equipe():
 
 
 @projeto.post('/projeto_equipe')
+@token_required
 def incluir_projeto_equipe():
     projeto_dao = ProjetoDao()
     json = request.get_json()
@@ -189,6 +206,7 @@ def incluir_projeto_equipe():
 
 
 @projeto.put('/projeto_equipe')
+@token_required
 def substituir_projeto_equipe():
     projeto_dao = ProjetoDao()
     json = request.get_json()
@@ -205,6 +223,7 @@ def substituir_projeto_equipe():
 
 
 @projeto.delete('/projeto_equipe')
+@token_required
 def remover_projeto_equipe():
     projeto_dao = ProjetoDao()
     json = {
@@ -221,6 +240,7 @@ def remover_projeto_equipe():
         return response
 
 @projeto.get('/buscar_sprints_do_projeto')
+@token_required
 def buscar_sprints_do_projeto():
     projeto_dao = ProjetoDao()
     if request.args.get('projeto'):

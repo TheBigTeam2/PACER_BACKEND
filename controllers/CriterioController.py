@@ -38,9 +38,15 @@ def get_criterios():
     return jsonify(criterio_dao.get_all_criterios())
 
 @criterio.post('/criterio')
+@token_required
 def insert():
     criterio_dao = CriterioDao()
     criterio = request.get_json()
+
+    #Logger Setup
+    tokensplit = request.headers['token'].split('.')[1]
+    usu_decoded = json.loads(base64.b64decode(tokensplit + '=' * (-len(tokensplit) % 4)).decode('utf-8'))['user']['usu_id']
+    load_dotenv()
 
     try:
         insertion_result = criterio_dao.save_criterio(criterio)
@@ -48,9 +54,6 @@ def insert():
         if insertion_result:
 
             #Logger MongoDB
-            tokensplit = request.headers['token'].split('.')[1]
-            usu_decoded = json.loads(base64.b64decode(tokensplit + '=' * (-len(tokensplit) % 4)).decode('utf-8'))['user']['usu_id']
-            load_dotenv()
             logevent = 'CriterioPost'
             logger = logging.getLogger(logevent)
             logger.setLevel(logging.DEBUG)
@@ -65,13 +68,30 @@ def insert():
             response = make_response(jsonify({"error":"Entrada duplicada"}),500)
             return response
 
-    except Exception as error:
+    except Exception as error: 
+
+        #Logger MongoDB Error 
+        logevent = 'ERROR'
+        logger = logging.getLogger(logevent)
+        logger.setLevel(logging.DEBUG)
+        logger.addHandler(MongoHandler(host=os.getenv("MONGO_URI"), database_name='PacerLogs', collection='Logs'))
+        message = "O usuario {} gerou um erro: {}".format(usu_decoded, str(error))
+        hashedmessage = hashlib.sha256((message + usu_decoded + logevent + str(datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")) + os.getenv('SECRET')).encode('utf-8')).hexdigest() 
+        logger.critical(message, extra={'usuario': usu_decoded,'hash': hashedmessage})
+
         response = make_response(jsonify({"error":str(error)}),500)
         return response
     
 @criterio.put('/criterio')
+@token_required
 def update():
     criterio_dao = CriterioDao()
+
+    #Logger Setup
+    tokensplit = request.headers['token'].split('.')[1]
+    usu_decoded = json.loads(base64.b64decode(tokensplit + '=' * (-len(tokensplit) % 4)).decode('utf-8'))['user']['usu_id']
+    load_dotenv()
+
     if request.args['id']:
         id_criterio = request.args['id']
         criterio_json = request.get_json()
@@ -104,6 +124,7 @@ def update():
     return response
 
 @criterio.delete('/criterio')
+@token_required
 def delete():
     criterio_dao = CriterioDao()
 

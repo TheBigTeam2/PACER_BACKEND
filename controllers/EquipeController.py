@@ -25,6 +25,7 @@ def get_equipes():
 
 
 @equipe.get('/equipe')
+@token_required
 def get_equipes_by_disciplina_or_projeto():
     equipe_dao = EquipeDao()
     if request.args.get('disciplina'):
@@ -66,9 +67,15 @@ def get_equipes_by_disciplina_or_projeto():
         return jsonify(equipe_dao.get_all_equipes_by_projeto(id_projeto))
 
 @equipe.post('/equipe')
+@token_required
 def insert():
     equipe_dao = EquipeDao()
     equipe = request.get_json()
+
+    #Logger Setup
+    tokensplit = request.headers['token'].split('.')[1]
+    usu_decoded = json.loads(base64.b64decode(tokensplit + '=' * (-len(tokensplit) % 4)).decode('utf-8'))['user']['usu_id']
+    load_dotenv()
 
     try:
         insertion_result = equipe_dao.save_equipe(equipe)
@@ -91,10 +98,21 @@ def insert():
             return response
 
     except Exception as error:
+
+        #Logger MongoDB Error 
+        logevent = 'ERROR'
+        logger = logging.getLogger(logevent)
+        logger.setLevel(logging.DEBUG)
+        logger.addHandler(MongoHandler(host=os.getenv("MONGO_URI"), database_name='PacerLogs', collection='Logs'))
+        message = "O usuario {} gerou um erro: {}".format(usu_decoded, str(error))
+        hashedmessage = hashlib.sha256((message + usu_decoded + logevent + str(datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")) + os.getenv('SECRET')).encode('utf-8')).hexdigest() 
+        logger.critical(message, extra={'usuario': usu_decoded,'hash': hashedmessage})
+
         response = make_response(jsonify({"error":"Esse professor nao existe"}),500)
         return response
 
 @equipe.put('/equipe')
+@token_required
 def update():
     equipe_dao = EquipeDao()
     if request.args['id']:
@@ -147,6 +165,7 @@ def update():
     return response
 
 @equipe.delete('/equipe')
+@token_required
 def delete():
     equipe_dao = EquipeDao()
     if request.args['id']:
@@ -179,6 +198,7 @@ def delete():
 
 
 @equipe.put('/atribuir')
+@token_required
 def atribuir():
     equipe_dao = EquipeDao()
     equipe_json = request.get_json()
@@ -193,6 +213,7 @@ def atribuir():
 
 
 @equipe.get('/equipe_aluno')
+@token_required
 def equipe_by_aluno():
     equipe_dao = EquipeDao()
     if request.args['aluno']:

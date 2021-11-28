@@ -5,6 +5,6 @@ routes_access = {
     'equipes':['Aluno', 'Professor', 'Administrador'],
     'notas':[],
     'projetos':['Aluno', 'Professor', 'Administrador'],
-    'usuarios':['Professor', 'Administrador']
-    #'logs':['Aluno','Professor']
+    'usuarios':['Professor', 'Administrador'],
+    'logs':['Administrador']
 }

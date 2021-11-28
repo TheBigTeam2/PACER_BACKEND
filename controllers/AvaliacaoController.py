@@ -39,17 +39,20 @@ def get_avaliacao():
         return jsonify(avaliacao_dao.get_all_avaliacoes_by_avaliador(id_avaliador))
 
 @avaliacao.post('/avaliacao')
+@token_required
 def post_avaliacao():
     avaliacao_dao = AvaliacaoDao()
     avaliacao = request.get_json()
+
+    #Logger Setup
+    tokensplit = request.headers['token'].split('.')[1]
+    usu_decoded = json.loads(base64.b64decode(tokensplit + '=' * (-len(tokensplit) % 4)).decode('utf-8'))['user']['usu_id']
+    load_dotenv()
 
     try:
         avaliacao_dao.sort_avaliacoes([avaliacao])
 
         #Logger MongoDB
-        tokensplit = request.headers['token'].split('.')[1]
-        usu_decoded = json.loads(base64.b64decode(tokensplit + '=' * (-len(tokensplit) % 4)).decode('utf-8'))['user']['usu_id']
-        load_dotenv()
         logevent = 'AvaliaçãoPost'
         logger = logging.getLogger(logevent)
         logger.setLevel(logging.DEBUG)
@@ -62,21 +65,34 @@ def post_avaliacao():
         return response
 
     except Exception as error:
+
+        #Logger MongoDB Error
+        logevent = 'ERROR'
+        logger = logging.getLogger(logevent)
+        logger.setLevel(logging.DEBUG)
+        logger.addHandler(MongoHandler(host=os.getenv("MONGO_URI"), database_name='PacerLogs', collection='Logs'))
+        message = "O usuario {} gerou um erro: {}".format(usu_decoded, str(error))
+        hashedmessage = hashlib.sha256((message + usu_decoded + logevent + str(datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")) + os.getenv('SECRET')).encode('utf-8')).hexdigest() 
+        logger.critical(message, extra={'usuario': usu_decoded,'hash': hashedmessage})
+
         return make_response(jsonify({"error":str(error)}),500)
     
 
 @avaliacao.post('/avaliacao_prof')    
+@token_required
 def post_avaliacao_prof():
     avaliacao_dao = AvaliacaoDao()
     json = request.get_json()
+
+    #Logger Setup
+    tokensplit = request.headers['token'].split('.')[1]
+    usu_decoded = json.loads(base64.b64decode(tokensplit + '=' * (-len(tokensplit) % 4)).decode('utf-8'))['user']['usu_id']
+    load_dotenv()
 
     try:
         avaliacao_dao.save_avaliacao_professor(json)
 
         #Logger MongoDB
-        tokensplit = request.headers['token'].split('.')[1]
-        usu_decoded = json.loads(base64.b64decode(tokensplit + '=' * (-len(tokensplit) % 4)).decode('utf-8'))['user']['usu_id']
-        load_dotenv()
         logevent = 'AvaliaçãoPostProfessor'
         logger = logging.getLogger(logevent)
         logger.setLevel(logging.DEBUG)
@@ -89,4 +105,14 @@ def post_avaliacao_prof():
         return response
 
     except Exception as error:
+
+        #Logger MongoDB Error
+        logevent = 'ERROR'
+        logger = logging.getLogger(logevent)
+        logger.setLevel(logging.DEBUG)
+        logger.addHandler(MongoHandler(host=os.getenv("MONGO_URI"), database_name='PacerLogs', collection='Logs'))
+        message = "O usuario {} gerou um erro: {}".format(usu_decoded, str(error))
+        hashedmessage = hashlib.sha256((message + usu_decoded + logevent + str(datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")) + os.getenv('SECRET')).encode('utf-8')).hexdigest() 
+        logger.critical(message, extra={'usuario': usu_decoded,'hash': hashedmessage})
+
         return make_response(jsonify({"error":str(error)}),500)    

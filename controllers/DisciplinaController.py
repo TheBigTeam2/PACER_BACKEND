@@ -38,9 +38,15 @@ def get_disciplinas():
     return jsonify(disciplina_dao.get_all_disciplinas())
 
 @disciplina.post('/disciplina')
+@token_required
 def insert():
     disciplina_dao = DisciplinaDao()
     disciplina = request.get_json()
+
+    #Logger Setup
+    tokensplit = request.headers['token'].split('.')[1]
+    usu_decoded = json.loads(base64.b64decode(tokensplit + '=' * (-len(tokensplit) % 4)).decode('utf-8'))['user']['usu_id']
+    load_dotenv()
 
     try:
         insertion_result = disciplina_dao.save_disciplina(disciplina)
@@ -48,9 +54,6 @@ def insert():
         if insertion_result:
 
             #Logger MongoDB
-            tokensplit = request.headers['token'].split('.')[1]
-            usu_decoded = json.loads(base64.b64decode(tokensplit + '=' * (-len(tokensplit) % 4)).decode('utf-8'))['user']['usu_id']
-            load_dotenv()
             logevent = 'DisciplinaPost'
             logger = logging.getLogger(logevent)
             logger.setLevel(logging.DEBUG)
@@ -66,10 +69,21 @@ def insert():
             return response
 
     except Exception as error:
+
+        #Logger MongoDB Error 
+        logevent = 'ERROR'
+        logger = logging.getLogger(logevent)
+        logger.setLevel(logging.DEBUG)
+        logger.addHandler(MongoHandler(host=os.getenv("MONGO_URI"), database_name='PacerLogs', collection='Logs'))
+        message = "O usuario {} gerou um erro: {}".format(usu_decoded, str(error))
+        hashedmessage = hashlib.sha256((message + usu_decoded + logevent + str(datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")) + os.getenv('SECRET')).encode('utf-8')).hexdigest() 
+        logger.critical(message, extra={'usuario': usu_decoded,'hash': hashedmessage})
+
         response = make_response(jsonify({"error":"Esse professor nao existe"}),500)
         return response
     
 @disciplina.put('/disciplina')
+@token_required
 def update():
     disciplina_dao = DisciplinaDao()
     if request.args['id']:
@@ -120,6 +134,7 @@ def update():
     return response
 
 @disciplina.delete('/disciplina')
+@token_required
 def delete():
     disciplina_dao = DisciplinaDao()
 
