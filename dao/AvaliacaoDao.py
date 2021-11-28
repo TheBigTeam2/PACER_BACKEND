@@ -1,6 +1,10 @@
 from dao.BaseDao import BaseDao
 from dao.NotaDao import NotaDao
+from models.Criterio import Criterio
+from models.Usuario import Usuario
 from models.Avaliacao import Avaliacao
+from models.Nota import Nota
+from sqlalchemy.sql.elements import and_
 from dao.ProjetoDao import ProjetoDao
 import random
 
@@ -42,6 +46,32 @@ class AvaliacaoDao(BaseDao):
         avaliacoes = [self.convert_entity_to_dict(avaliacao) for avaliacao in avaliacoes]
 
         return avaliacoes
+
+    def get_all_avaliacoes_by_avaliado_and_projeto(self, id_avaliado, id_projeto):
+        avaliacoes = (self.session.query(Usuario.usu_nome, Avaliacao.ava_sprint, Criterio.cri_nome, Nota.not_valor)
+            .join(
+                Avaliacao, Nota.not_avaliacao == Avaliacao.ava_id
+            ).join(
+                Usuario, Avaliacao.ava_avaliador == Usuario.usu_id
+            ).join(
+                Criterio, Nota.not_criterio == Criterio.cri_id
+            ).filter(
+                and_(Avaliacao.ava_projeto == id_projeto, Avaliacao.ava_avaliado == id_avaliado)
+            ).order_by(
+                Usuario.usu_id, Avaliacao.ava_sprint, Nota.not_id
+            )
+        ).all()
+
+        return [self.criar_dicionario_avaliacao(avaliacao) for avaliacao in avaliacoes]
+
+    def criar_dicionario_avaliacao(self, avaliacao):
+        print(avaliacao)
+        return {
+            "avaliador": avaliacao[0],
+            "sprint": avaliacao[1],
+            "criterio": avaliacao[2],
+            "nota": avaliacao[3]
+        }
 
     def sort_avaliacoes(self, avaliacoes: list) -> dict:
 

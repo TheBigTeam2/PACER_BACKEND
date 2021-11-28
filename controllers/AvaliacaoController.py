@@ -38,6 +38,16 @@ def get_avaliacao():
 
         return jsonify(avaliacao_dao.get_all_avaliacoes_by_avaliador(id_avaliador))
 
+@avaliacao.get('/avaliacoes_do_usuario')
+@token_required
+def get_avaliacoes_do_usuario():
+    avaliacao_dao = AvaliacaoDao()
+    if request.args['avaliado'] and request.args['projeto']:
+        id_avaliador = request.args['avaliado']
+        id_projeto = request.args['projeto']
+
+        return jsonify(avaliacao_dao.get_all_avaliacoes_by_avaliado_and_projeto(id_avaliador, id_projeto))
+
 @avaliacao.post('/avaliacao')
 @token_required
 def post_avaliacao():
@@ -76,7 +86,7 @@ def post_avaliacao():
         logger.critical(message, extra={'usuario': usu_decoded,'hash': hashedmessage})
 
         return make_response(jsonify({"error":str(error)}),500)
-    
+
 
 @avaliacao.post('/avaliacao_prof')    
 @token_required
